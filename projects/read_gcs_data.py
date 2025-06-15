@@ -32,6 +32,82 @@ spark.sparkContext.setLogLevel("ERROR")
 print("[INFO] Spark session initialized successfully.")
 
 # ------------------------------------------------------------------------------------------------------------------------
+# 📄 2. Function Definitions
+# ------------------------------------------------------------------------------------------------------------------------
+
+
+def clean_dataframe(df, key_columns=None, string_columns=None, date_columns=None, dedup_columns=None, table_name="Table"):
+    print(f"\n Starting Cleaning for: {table_name}")
+    print("----------------------------------------------------------------------------------------------------------------------")
+
+    initial_count = df.count()
+    print(f"Initial Record Count: {initial_count}")
+
+    # Step 1: Drop rows where all columns are null
+    df = df.dropna(how="all")
+    after_null_drop = df.count()
+    print(f" Step 1 - NULL row drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
+
+    # Step 2: Filter based on essential key columns
+    if key_columns:
+        print(f" Step 2 - Filtering nulls in key columns: {key_columns}")
+        condition = None
+        for col_name in key_columns:
+            if condition is None:
+                condition = F.col(col_name).isNotNull()
+            else:
+                condition &= F.col(col_name).isNotNull()
+        df = df.filter(condition)
+    after_key_filter = df.count()
+    print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
+
+    # Step 3: Standardize string columns
+    if string_columns:
+        print(f"Step 3 - Cleaning string columns: {string_columns}")
+        for col_name in string_columns:
+            df = df.withColumn(
+                col_name,
+                initcap(
+                    regexp_replace(trim(lower(F.col(col_name))), " +", " ")
+                )
+            )
+    after_string_clean = df.count()
+    print(f"String columns cleaned. Record count: {after_string_clean}")
+
+    # Step 4: Convert date columns
+    if date_columns:
+        print(f"Step 4 - Formatting date columns: {date_columns}")
+        for col_name in date_columns:
+            df = df.withColumn(col_name, to_date(col_name, "yyyy-MM-dd"))
+    after_date_conversion = df.count()
+    print(f"Date formatting done. Record count: {after_date_conversion}")
+
+    # Step 5: Deduplication
+    if dedup_columns:
+        print(f"Step 5 - Removing duplicates using: {dedup_columns}")
+        before_dedup = df.count()
+        df = df.dropDuplicates(dedup_columns)
+        after_dedup = df.count()
+        print(f"After deduplication: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
+    else:
+        after_dedup = after_date_conversion
+
+    # Final Summary
+    print("Final Cleaning Summary:")
+    print(f"🔹 Initial Records           : {initial_count}")
+    print(f"🔹 After NULL Row Drop       : {after_null_drop}")
+    print(f"🔹 After Key Filter          : {after_key_filter}")
+    print(f"🔹 After String Clean        : {after_string_clean}")
+    print(f"🔹 After Date Conversion     : {after_date_conversion}")
+    print(f"🔹 After deduplication       : {after_dedup}")
+    print(f"🔹 Final Cleaned Record Count: {after_dedup}")
+    print("Cleaning Complete!")
+    print("----------------------------------------------------------------------------------------------------------------------")
+
+    return df
+
+
+# ------------------------------------------------------------------------------------------------------------------------
 # 📄 2. Schema Definitions
 # ------------------------------------------------------------------------------------------------------------------------
 
@@ -200,12 +276,56 @@ print("\n[INFO] All datasets loaded and schemas verified.")
 print("[COMPLETED] IPL Data Analysis environment is ready.")
 
 # ------------------------------------------------------------------------------------------------------------------------
-# DATA CLEANING
+# DATA CLEANING STARTED
 # ------------------------------------------------------------------------------------------------------------------------
+df_ball_by_ball = clean_dataframe(
+    df_ball_by_ball,
+    key_columns=["Match_id", "Over_id", "Ball_id"],
+    string_columns=["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"],
+    date_columns=["Match_Date"],
+    dedup_columns=["Match_id", "Over_id", "Ball_id"],
+    table_name="Ball_By_Ball"
+)
 
-from pyspark.sql.functions import col, lower, trim, initcap, regexp_replace, to_date
-from pyspark.sql import functions as F
+df_match = clean_dataframe(
+    df_match,
+    key_columns=["match_id"],
+    string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
+    date_columns=["match_date"],
+    dedup_columns=["match_id"],
+    table_name="Match"
+)
 
+df_player = clean_dataframe(
+    df_player,
+    key_columns=["player_id"],
+    string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
+    date_columns=["dob"],
+    dedup_columns=["player_id"],
+    table_name="Player"
+)
+
+df_player_match = clean_dataframe(
+    df_player_match,
+    key_columns=["player_match_sk"],
+    string_columns=["player_name", "batting_hand", "bowling_skill", "country_name", "role_desc", "player_team", "opposit_team", "batting_status", "bowling_status", "player_captain", "opposit_captain", "player_keeper", "opposit_keeper"],
+    date_columns=["dob"],
+    dedup_columns=["player_match_sk"],
+    table_name="Player_Match"
+)
+
+df_team = clean_dataframe(
+    df_team,
+    key_columns=["team_id"],
+    string_columns=["team_name"],
+    dedup_columns=["team_id"],
+    table_name="Team"
+)
+
+
+# ------------------------------------------------------------------------------------------------------------------------
+# DATA CLEANING COMPLETED
+# ------------------------------------------------------------------------------------------------------------------------
 # Initial Record Count
 initial_count = df_ball_by_ball.count()
 print(f" Initial Record Count: {initial_count}")
