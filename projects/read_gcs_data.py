@@ -71,6 +71,10 @@ ball_by_ball_schema = StructType([
 ])
 
 df_ball_by_ball = spark.read.schema(ball_by_ball_schema).option("header", "true").csv("gs://ipl-data-project/Ball_By_Ball.csv")
+df_ball_by_ball.printSchema()
+# df_ball_by_ball.createOrReplaceTempView('ball_by_ball')
+df_ball_by_ball.count()
+
 # df_Match = spark.read.option("header", "true").csv("gs://ipl-data-project/Match.csv")
 
 # df_Match.createOrReplaceTempView('Match')
