@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.tyoes import StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType
+from pyspark.sql.types import StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType
 import tempfile
 
 # Create a custom temp directory (optional: you can specify your own path instead of letting tempfile create one)
