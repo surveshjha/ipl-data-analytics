@@ -15,8 +15,8 @@ spark = SparkSession.builder \
     .appName("IPL Data Analysis SPARK") \
     .config("spark.local.dir", custom_tmp_dir) \
     .config("spark.files.overwrite", "false") \
-    .config("spark.driver.memory", "4g") \
-    .config("spark.executor.memory", "4g") \
+    .config("spark.driver.memory", "8g") \
+    .config("spark.executor.memory", "8g") \
     .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem") \
     .config("spark.hadoop.fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS") \
     .config("spark.hadoop.google.cloud.auth.service.account.enable", "true") \
