@@ -199,7 +199,7 @@ print("[COMPLETED] IPL Data Analysis environment is ready.")
 # ------------------------------------------------------------------------------------------------------------------------
 
 ball_by_ball_count=df_ball_by_ball.count
-print("Ball By Ball Record Counts:")
+print("Ball By Ball Before Record Counts:")
 print(ball_by_ball_count)
 print("----------------------------------------------------------------------------------------------------------------------")
 
@@ -227,6 +227,10 @@ df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", F.to_date("Match_Date
 #Drop Duplicate values based on key columns
 df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
 
+ball_by_ball_count=df_ball_by_ball.count
+print("Ball By Ball After Record Counts:")
+print(ball_by_ball_count)
+print("----------------------------------------------------------------------------------------------------------------------")
 #save the cleaned version
 df_ball_by_ball_cleaned = df_ball_by_ball.cache()
 df_ball_by_ball_cleaned.createOrReplaceTempView("fact_ball_by_ball_cleaned")
