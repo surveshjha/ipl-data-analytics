@@ -238,9 +238,11 @@ print(ball_by_ball_count)
 print("----------------------------------------------------------------------------------------------------------------------")
 #save the cleaned version
 df_ball_by_ball_cleaned = df_ball_by_ball.cache()
-df_ball_by_ball_cleaned.createOrReplaceTempView("fact_ball_by_ball_cleaned")
 
-df_ball_by_ball_cleaned.write.mode("overwrite").parquet("gs://ipl-data-project/cleaned/ball_by_ball/")
+df_ball_by_ball_cleaned.show(5)
+# df_ball_by_ball_cleaned.createOrReplaceTempView("fact_ball_by_ball_cleaned")
+
+# df_ball_by_ball_cleaned.write.mode("overwrite").parquet("gs://ipl-data-project/cleaned/ball_by_ball/")
 
 
 
