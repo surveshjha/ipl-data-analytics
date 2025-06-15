@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (
-    StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType
-)
+from pyspark.sql.types import (StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType)
+from pyspark.sql import functions as F
+from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col
 
 # ------------------------------------------------------------------------------------------------------------------------
 # ⚙️ 1. Spark Session Initialization
@@ -193,3 +193,59 @@ df_team.printSchema()
 
 print("\n[INFO] All datasets loaded and schemas verified.")
 print("[COMPLETED] IPL Data Analysis environment is ready.")
+
+# ------------------------------------------------------------------------------------------------------------------------
+# DATA CLEANING
+# ------------------------------------------------------------------------------------------------------------------------
+
+ball_by_ball_count=df_ball_by_ball.count()
+print("Ball By Ball Before Record Counts:")
+print(ball_by_ball_count)
+print("----------------------------------------------------------------------------------------------------------------------")
+
+#Drop complete null rows
+df_ball_by_ball = df_ball_by_ball.dropna(how="all")
+
+#Filter out rows with missing essential keys
+df_ball_by_ball=df_ball_by_ball.filter(F.col("Match_id").isNotNull() &
+                                       F.col("Over_id").isNotNull() &
+                                       F.col("ball_id").isNotNull() )
+#Standardising string columns
+string_cols = ["Team_Batting", "Team_Bowling", "Extra_Type","Out_type"]
+
+for col_name in string_cols:
+    df_ball_by_ball = df_ball_by_ball.withColumn(
+        col_name,
+        initcap(
+            regexp_replace(trim(lower(col(col_name))), " +", " ")
+        )
+    )
+
+#standardising Date Columns
+df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", F.to_date("Match_Date", "yyyy-MM-dd"))
+
+#Drop Duplicate values based on key columns
+df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
+
+ball_by_ball_count=df_ball_by_ball.count()
+print("Ball By Ball After Record Counts:")
+print(ball_by_ball_count)
+print("----------------------------------------------------------------------------------------------------------------------")
+#save the cleaned version
+df_ball_by_ball_cleaned = df_ball_by_ball.cache()
+df_ball_by_ball_cleaned.createOrReplaceTempView("fact_ball_by_ball_cleaned")
+
+df_ball_by_ball_cleaned.write.mode("overwrite").parquet("gs://ipl-data-project/cleaned/ball_by_ball/")
+
+
+
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------
+# DATA LOADING
+# ------------------------------------------------------------------------------------------------------------------------
+
+
+
