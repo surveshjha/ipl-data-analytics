@@ -239,7 +239,8 @@ print("-------------------------------------------------------------------------
 #save the cleaned version
 df_ball_by_ball_cleaned = df_ball_by_ball.cache()
 
-df_ball_by_ball_cleaned.show(5)
+df_ball_by_ball_cleaned.select("match_id", "team_batting", "team_bowling", "runs_scored").show(10, truncate=False)
+
 # df_ball_by_ball_cleaned.createOrReplaceTempView("fact_ball_by_ball_cleaned")
 
 # df_ball_by_ball_cleaned.write.mode("overwrite").parquet("gs://ipl-data-project/cleaned/ball_by_ball/")
