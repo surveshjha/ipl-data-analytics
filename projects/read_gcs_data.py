@@ -3,8 +3,6 @@ from pyspark.sql.types import (StructField, StructType, IntegerType, StringType,
 from pyspark.sql import functions as F
 from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col
 
-spark.sparkContext.setLogLevel("ERROR")
-
 # ------------------------------------------------------------------------------------------------------------------------
 # ⚙️ 1. Spark Session Initialization
 # ------------------------------------------------------------------------------------------------------------------------
@@ -25,6 +23,9 @@ spark = SparkSession.builder \
     .config("spark.driver.extraClassPath", 
             "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar") \
     .getOrCreate()
+
+
+spark.sparkContext.setLogLevel("ERROR")
 
 print("[INFO] Spark session initialized successfully.")
 
