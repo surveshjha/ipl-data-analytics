@@ -17,8 +17,9 @@ spark = SparkSession.builder \
     .config("spark.driver.extraClassPath", "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar") \
     .getOrCreate()
 
-# Read CSV from GCS
-
+#------------------------------------------------------------------------------------------------------------------------
+#Schema Enforcement
+#------------------------------------------------------------------------------------------------------------------------
 ball_by_ball_schema = StructType([
     StructField("match_id", IntegerType(), True),
     StructField("over_id", IntegerType(), True),
@@ -70,9 +71,85 @@ ball_by_ball_schema = StructType([
     StructField("matchdatesk", IntegerType(), True),
 ])
 
+match_schema = StructType([
+    StructField("match_sk", IntegerType(), True),
+    StructField("match_id", IntegerType(), True),
+    StructField("team1", StringType(), True),
+    StructField("team2", StringType(), True),
+    StructField("match_date", DateType(), True),
+    StructField("season_year", IntegerType(), True),  # Year as IntegerType
+    StructField("venue_name", StringType(), True),
+    StructField("city_name", StringType(), True),
+    StructField("country_name", StringType(), True),
+    StructField("toss_winner", StringType(), True),
+    StructField("match_winner", StringType(), True),
+    StructField("toss_name", StringType(), True),
+    StructField("win_type", StringType(), True),
+    StructField("outcome_type", StringType(), True),
+    StructField("manofmach", StringType(), True),
+    StructField("win_margin", IntegerType(), True),
+    StructField("country_id", IntegerType(), True),
+])
+
+player_schema = StructType([
+    StructField("player_sk", IntegerType(), True),
+    StructField("player_id", IntegerType(), True),
+    StructField("player_name", StringType(), True),
+    StructField("dob", DateType(), True),
+    StructField("batting_hand", StringType(), True),
+    StructField("bowling_skill", StringType(), True),
+    StructField("country_name", StringType(), True),
+])
+
+player_match_schema = StructType([
+    StructField("player_match_sk", IntegerType(), True),
+    StructField("playermatch_key", DecimalType(20, 10), True),  # Adjust precision/scale as needed
+    StructField("match_id", IntegerType(), True),
+    StructField("player_id", IntegerType(), True),
+    StructField("player_name", StringType(), True),
+    StructField("dob", DateType(), True),
+    StructField("batting_hand", StringType(), True),
+    StructField("bowling_skill", StringType(), True),
+    StructField("country_name", StringType(), True),
+    StructField("role_desc", StringType(), True),
+    StructField("player_team", StringType(), True),
+    StructField("opposit_team", StringType(), True),
+    StructField("season_year", IntegerType(), True),
+    StructField("is_manofthematch", BooleanType(), True),
+    StructField("age_as_on_match", IntegerType(), True),
+    StructField("isplayers_team_won", BooleanType(), True),
+    StructField("batting_status", StringType(), True),
+    StructField("bowling_status", StringType(), True),
+    StructField("player_captain", StringType(), True),
+    StructField("opposit_captain", StringType(), True),
+    StructField("player_keeper", StringType(), True),
+    StructField("opposit_keeper", StringType(), True),
+])
+
+team_schema = StructType([
+    StructField("team_sk", IntegerType(), True),
+    StructField("team_id", IntegerType(), True),
+    StructField("team_name", StringType(), True),
+])
+
+#------------------------------------------------------------------------------------------------------------------------
+#Data Loading
+#------------------------------------------------------------------------------------------------------------------------
+
+print('STARTED')
+
 df_ball_by_ball = spark.read.schema(ball_by_ball_schema).option("header", "true").csv("gs://ipl-data-project/Ball_By_Ball.csv")
 df_ball_by_ball.printSchema()
-# df_ball_by_ball.createOrReplaceTempView('ball_by_ball')
+df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
+df_match.printSchema()
+df_player = spark.read.schema(player_schema).option("header", "true").csv("gs://ipl-data-project/Player.csv")
+df_player.printSchema()
+df_player_match = spark.read.schema(player_match_schema).option("header", "true").csv("gs://ipl-data-project/Player_match.csv")
+df_player_match.printSchema()
+df_team = spark.read.schema(team_schema).option("header", "true").csv("gs://ipl-data-project/Team.csv")
+df_team.printSchema()
+
+
 print('COMPLETED')
 
 # df_Match = spark.read.option("header", "true").csv("gs://ipl-data-project/Match.csv")
