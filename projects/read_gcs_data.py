@@ -3,6 +3,8 @@ from pyspark.sql.types import (StructField, StructType, IntegerType, StringType,
 from pyspark.sql import functions as F
 from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col
 
+spark.sparkContext.setLogLevel("ERROR")
+
 # ------------------------------------------------------------------------------------------------------------------------
 # ⚙️ 1. Spark Session Initialization
 # ------------------------------------------------------------------------------------------------------------------------
