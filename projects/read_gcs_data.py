@@ -203,20 +203,35 @@ print("[COMPLETED] IPL Data Analysis environment is ready.")
 # DATA CLEANING
 # ------------------------------------------------------------------------------------------------------------------------
 
-ball_by_ball_count=df_ball_by_ball.count()
-print("Ball By Ball Before Record Counts:")
-print(ball_by_ball_count)
+from pyspark.sql.functions import col, lower, trim, initcap, regexp_replace, to_date
+from pyspark.sql import functions as F
+
+# Initial Record Count
+initial_count = df_ball_by_ball.count()
+print(f"🎯 Initial Record Count: {initial_count}")
 print("----------------------------------------------------------------------------------------------------------------------")
 
-#Drop complete null rows
+# Step 1: Drop completely null rows
+print("🧹 Step 1: Dropping rows where all columns are NULL...")
 df_ball_by_ball = df_ball_by_ball.dropna(how="all")
+after_null_drop = df_ball_by_ball.count()
+print(f"✅ Rows after NULL drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
+print("----------------------------------------------------------------------------------------------------------------------")
 
-#Filter out rows with missing essential keys
-df_ball_by_ball=df_ball_by_ball.filter(F.col("Match_id").isNotNull() &
-                                       F.col("Over_id").isNotNull() &
-                                       F.col("ball_id").isNotNull() )
-#Standardising string columns
-string_cols = ["Team_Batting", "Team_Bowling", "Extra_Type","Out_type"]
+# Step 2: Filter out rows with missing essential keys
+print("🔑 Step 2: Filtering out rows with missing Match_id, Over_id, or Ball_id...")
+df_ball_by_ball = df_ball_by_ball.filter(
+    col("Match_id").isNotNull() &
+    col("Over_id").isNotNull() &
+    col("Ball_id").isNotNull()
+)
+after_key_filter = df_ball_by_ball.count()
+print(f"✅ Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
+print("----------------------------------------------------------------------------------------------------------------------")
+
+# Step 3: Standardizing string columns
+print("🎨 Step 3: Standardizing string columns (Team_Batting, Team_Bowling, Extra_Type, Out_type)...")
+string_cols = ["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"]
 
 for col_name in string_cols:
     df_ball_by_ball = df_ball_by_ball.withColumn(
@@ -225,25 +240,36 @@ for col_name in string_cols:
             regexp_replace(trim(lower(col(col_name))), " +", " ")
         )
     )
-
-#standardising Date Columns
-df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", F.to_date("Match_Date", "yyyy-MM-dd"))
-
-#Drop Duplicate values based on key columns
-df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
-
-ball_by_ball_count=df_ball_by_ball.count()
-print("Ball By Ball After Record Counts:")
-print(ball_by_ball_count)
+after_string_clean = df_ball_by_ball.count()
+print(f"✅ String formatting applied. Record count remains: {after_string_clean}")
 print("----------------------------------------------------------------------------------------------------------------------")
-#save the cleaned version
-df_ball_by_ball_cleaned = df_ball_by_ball.cache()
 
-df_ball_by_ball_cleaned.select("match_id", "team_batting", "team_bowling", "runs_scored").show(10, truncate=False)
+# Step 4: Convert Match_Date to DateType
+print("📅 Step 4: Converting Match_Date to DateType...")
+df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", to_date("Match_Date", "yyyy-MM-dd"))
+after_date_conversion = df_ball_by_ball.count()
+print(f"✅ Date conversion done. Record count remains: {after_date_conversion}")
+print("----------------------------------------------------------------------------------------------------------------------")
 
-# df_ball_by_ball_cleaned.createOrReplaceTempView("fact_ball_by_ball_cleaned")
+# Step 5: Drop duplicates based on key columns
+print("🗃️ Step 5: Dropping duplicates based on Match_id, Over_id, Ball_id...")
+before_dedup = df_ball_by_ball.count()
+df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
+after_dedup = df_ball_by_ball.count()
+print(f"✅ After dropping duplicates: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
+print("----------------------------------------------------------------------------------------------------------------------")
 
-# df_ball_by_ball_cleaned.write.mode("overwrite").parquet("gs://ipl-data-project/cleaned/ball_by_ball/")
+# Final Summary
+print("🎉 Cleaning Summary:")
+print(f"🔹 Initial Records           : {initial_count}")
+print(f"🔹 After NULL Row Drop       : {after_null_drop}")
+print(f"🔹 After Key Filter          : {after_key_filter}")
+print(f"🔹 After String Clean        : {after_string_clean}")
+print(f"🔹 After Date Conversion     : {after_date_conversion}")
+print(f"🔹 Final Cleaned Record Count: {after_dedup}")
+print("✅ Data Cleaning Complete!")
+print("----------------------------------------------------------------------------------------------------------------------")
+
 
 
 
