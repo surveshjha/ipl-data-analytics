@@ -1,11 +1,16 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType
-import tempfile
+from pyspark.sql.types import (
+    StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType
+)
 
-# Create a custom temp directory (optional: you can specify your own path instead of letting tempfile create one)
-custom_tmp_dir = "E:/DataEngineering/SparkTemp"
+# ------------------------------------------------------------------------------------------------------------------------
+# ⚙️ 1. Spark Session Initialization
+# ------------------------------------------------------------------------------------------------------------------------
 
-# Initialize Spark session with GCS config and custom temp dir
+print("[INFO] Initializing Spark session...")
+
+custom_tmp_dir = "E:/DataEngineering/SparkTemp"  # Custom temp directory
+
 spark = SparkSession.builder \
     .appName("IPL Data Analysis SPARK") \
     .config("spark.local.dir", custom_tmp_dir) \
@@ -13,13 +18,20 @@ spark = SparkSession.builder \
     .config("spark.hadoop.fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem") \
     .config("spark.hadoop.fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS") \
     .config("spark.hadoop.google.cloud.auth.service.account.enable", "true") \
-    .config("spark.hadoop.google.cloud.auth.service.account.json.keyfile", "E:/DataEngineering/keys/data-with-jha-0e1c0496e4ff.json") \
-    .config("spark.driver.extraClassPath", "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar") \
+    .config("spark.hadoop.google.cloud.auth.service.account.json.keyfile", 
+            "E:/DataEngineering/keys/data-with-jha-0e1c0496e4ff.json") \
+    .config("spark.driver.extraClassPath", 
+            "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar") \
     .getOrCreate()
 
-#------------------------------------------------------------------------------------------------------------------------
-#Schema Enforcement
-#------------------------------------------------------------------------------------------------------------------------
+print("[INFO] Spark session initialized successfully.")
+
+# ------------------------------------------------------------------------------------------------------------------------
+# 📄 2. Schema Definitions
+# ------------------------------------------------------------------------------------------------------------------------
+
+print("[INFO] Defining custom schemas for all input datasets...")
+
 ball_by_ball_schema = StructType([
     StructField("match_id", IntegerType(), True),
     StructField("over_id", IntegerType(), True),
@@ -131,38 +143,53 @@ team_schema = StructType([
     StructField("team_id", IntegerType(), True),
     StructField("team_name", StringType(), True),
 ])
+print("[INFO] Schema definitions completed.")
 
-#------------------------------------------------------------------------------------------------------------------------
-#Data Loading
-#------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------------
+# 📥 3. Load DataFrames from GCS
+# ------------------------------------------------------------------------------------------------------------------------
 
-print('STARTED')
+print("[INFO] Starting to load datasets from GCS...")
 
-df_ball_by_ball = spark.read.schema(ball_by_ball_schema).option("header", "true").csv("gs://ipl-data-project/Ball_By_Ball.csv")
+try:
+    print("[INFO] Loading Ball_By_Ball.csv...")
+    df_ball_by_ball = spark.read.schema(ball_by_ball_schema).option("header", "true").csv("gs://ipl-data-project/Ball_By_Ball.csv")
+    print("[SUCCESS] Ball_By_Ball.csv loaded. Row count:", df_ball_by_ball.count())
+
+    print("[INFO] Loading Match.csv...")
+    df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
+    print("[SUCCESS] Match.csv loaded. Row count:", df_match.count())
+
+    print("[INFO] Loading Player.csv...")
+    df_player = spark.read.schema(player_schema).option("header", "true").csv("gs://ipl-data-project/Player.csv")
+    print("[SUCCESS] Player.csv loaded. Row count:", df_player.count())
+
+    print("[INFO] Loading Player_match.csv...")
+    df_player_match = spark.read.schema(player_match_schema).option("header", "true").csv("gs://ipl-data-project/Player_match.csv")
+    print("[SUCCESS] Player_match.csv loaded. Row count:", df_player_match.count())
+
+    print("[INFO] Loading Team.csv...")
+    df_team = spark.read.schema(team_schema).option("header", "true").csv("gs://ipl-data-project/Team.csv")
+    print("[SUCCESS] Team.csv loaded. Row count:", df_team.count())
+
+except Exception as e:
+    print("[ERROR] Failed during data loading:", e)
+
+# ------------------------------------------------------------------------------------------------------------------------
+# 🧾 4. Schema Validation
+# ------------------------------------------------------------------------------------------------------------------------
+
+print("\n[INFO] Printing all schemas for verification...")
+
 df_ball_by_ball.printSchema()
-df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
 df_match.printSchema()
-df_player = spark.read.schema(player_schema).option("header", "true").csv("gs://ipl-data-project/Player.csv")
 df_player.printSchema()
-df_player_match = spark.read.schema(player_match_schema).option("header", "true").csv("gs://ipl-data-project/Player_match.csv")
 df_player_match.printSchema()
-df_team = spark.read.schema(team_schema).option("header", "true").csv("gs://ipl-data-project/Team.csv")
 df_team.printSchema()
 
+# ------------------------------------------------------------------------------------------------------------------------
+# ✅ Final Step
+# ------------------------------------------------------------------------------------------------------------------------
 
-print('COMPLETED')
-
-# df_Match = spark.read.option("header", "true").csv("gs://ipl-data-project/Match.csv")
-
-# df_Match.createOrReplaceTempView('Match')
-
-# Match_table=spark.sql('''select count(*) from Match''')
-# Match_table.show()
-
-# # Show top 5 rows
-# df_ball_by_ball.columns
-# df_Match.columns
-# # Optional: Print schema
-# df_ball_by_ball.printSchema()
-# df_Match.printSchema()
-
+print("\n[INFO] All datasets loaded and schemas verified.")
+print("[COMPLETED] IPL Data Analysis environment is ready.")
