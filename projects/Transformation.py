@@ -91,10 +91,9 @@ print("[INFO] Calculating top run scorers (Orange Cap) across seasons...")
 
 df_orangecap = df_valid_deliveries.groupBy("striker", "season").agg(
     sum("runs_scored").alias("total_runs")
-).orderBy(col("total_runs").desc())
+)
 
-# df_orangecap.show(10)
-
+# Join with Player table to get player name
 df_Player = dataframes["Player"]
 
 df_orangecap_named = df_orangecap.join(
@@ -103,4 +102,7 @@ df_orangecap_named = df_orangecap.join(
     how="left"
 ).select(
     "striker", "player_name", "season", "total_runs"
-).orderBy("total_runs",ascending=False).show(10)
+)
+
+# Display top 10 orange cap players
+df_orangecap_named.orderBy(col("total_runs").desc()).show(10)
