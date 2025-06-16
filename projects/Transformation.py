@@ -45,7 +45,9 @@ for table in table_names:
 #Answering questions:
 
 #filter to include only valid deliveries i.e. there should be no wides and no noballs
-
-dataframes["Ball_By_Ball"]=dataframes["Ball_By_Ball"].filter((col('wides')==0 & col("noballs")==0))
-count=dataframes["Ball_By_Ball"].count()
-print(f"Valid Deliverries {count}")
+dataframes["Ball_By_Ball"].select("match_id", "over_id", "ball_id", "wides", "noballs").show(5)
+# dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
+#     (col('wides') == 0) & (col("noballs") == 0)
+# )
+# count=dataframes["Ball_By_Ball"].count()
+# print(f"Valid Deliverries {count}")
