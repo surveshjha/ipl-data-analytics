@@ -415,7 +415,7 @@ df_ball_by_ball = clean_dataframe(
 
 # Define output directory
 # output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
-# output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
+output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaneddata"
 
 # # Step 1: Delete existing directory if it exists
 # if os.path.exists(output_dir):
