@@ -55,7 +55,7 @@ ball_by_ball_schema = StructType([
     StructField("hit_wicket", BooleanType(), True),
     StructField("obstructingfeild", BooleanType(), True),
     StructField("bowler_wicket", BooleanType(), True),
-    StructField("match_date", DateType(), True),
+    StructField("match_date", StringType(), True),
     StructField("season", IntegerType(), True),
     StructField("striker", IntegerType(), True),
     StructField("non_striker", IntegerType(), True),
@@ -87,31 +87,24 @@ except Exception as e:
     print("[ERROR] Failed during data loading:", e)
 
 
-from pyspark.sql.functions import col, to_date, when, date_format
+from pyspark.sql.functions import col, when, to_date, trim
 
-# 1. Create a temporary column to hold the original date for comparison
+# Step 1: Ensure date column is clean string
+df_ball_by_ball = df_ball_by_ball.withColumn("match_date_str", trim(col("match_date").cast("string")))
 
-from pyspark.sql.functions import col, when, to_date
-
-# Step 1: Cast to string
-df_ball_by_ball = df_ball_by_ball.withColumn("match_date_str", col("match_date").cast("string"))
-
-# 2. Convert match_date from known formats to a proper date
+# Step 2: Apply parsing with correct formats
 df_ball_by_ball = df_ball_by_ball.withColumn(
     "match_date_cleaned",
     when(
         col("match_date_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
-        to_date(col("match_date_str"), "MM/dd/yyyy")
+        to_date(col("match_date_str"), "M/d/yyyy")
     ).when(
         col("match_date_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),
-        to_date(col("match_date_str"), "dd/MM/yyyy")
+        to_date(col("match_date_str"), "dd-MM-yyyy")
     ).otherwise(None)
 )
 
+# Optional: Show how it parsed
+df_ball_by_ball.select("match_date_str", "match_date_cleaned").show(20, False)
 
-# 3. Format match_date into uniform yyyy-MM-dd string format
-# df_ball_by_ball = df_ball_by_ball.withColumn("match_date", date_format(col("match_date"), "yyyy-MM-dd"))
-
-# 4. Show side-by-side: original vs. cleaned
-df_ball_by_ball.select("match_date_str", "match_date_cleaned","match_date").show(20, False)
 
