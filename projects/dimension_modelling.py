@@ -1,7 +1,15 @@
 from pyspark.sql import SparkSession
 
 # Initialize Spark Session (if not already)
-spark = SparkSession.builder.appName("Read Cleaned IPL Tables").getOrCreate()
+print("[INFO] Initializing Spark session...")
+
+custom_tmp_dir = "E:/DataEngineering/SparkTemp"  # Custom temp directory
+spark = SparkSession.builder.appName("Read Cleaned IPL Tables").config("spark.local.dir", custom_tmp_dir).config("spark.files.overwrite", "false") \
+    .config("spark.driver.memory", "8g") \
+    .config("spark.executor.memory", "8g") \
+    .getOrCreate()
+
+spark.sparkContext.setLogLevel("ERROR")
 
 # Base path where your cleaned CSVs are stored
 base_path = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data/"
