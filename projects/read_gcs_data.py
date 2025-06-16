@@ -304,10 +304,10 @@ except Exception as e:
 print("\n[INFO] Printing all schemas for verification...")
 
 df_ball_by_ball.printSchema()
-df_match.printSchema()
-df_player.printSchema()
-df_player_match.printSchema()
-df_team.printSchema()
+# df_match.printSchema()
+# df_player.printSchema()
+# df_player_match.printSchema()
+# df_team.printSchema()
 
 # ------------------------------------------------------------------------------------------------------------------------
 # ✅ Final Step
