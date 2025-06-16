@@ -93,4 +93,14 @@ df_orangecap = df_valid_deliveries.groupBy("striker", "season").agg(
     sum("runs_scored").alias("total_runs")
 ).orderBy(col("total_runs").desc())
 
-df_orangecap.show(10)
+# df_orangecap.show(10)
+
+df_Player = dataframes["Player"]
+
+df_orangecap_named = df_orangecap.join(
+    dataframes["Player"],
+    df_orangecap["striker"] == dataframes["Player"]["player_id"],
+    how="left"
+).select(
+    "striker", "player_name", "season", "total_runs"
+).orderBy("total_runs",ascending=False).show(10)
