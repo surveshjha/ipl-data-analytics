@@ -3,31 +3,6 @@ from pyspark.sql.types import (StructField, StructType, IntegerType, StringType,
 from pyspark.sql import functions as F
 from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col, when, lit, to_date
 
-# Define output directory
-# output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
-# output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
-
-# # Step 1: Delete existing directory if it exists
-# if os.path.exists(output_dir):
-#     print(f"Deleting existing directory: {output_dir}")
-#     shutil.rmtree(output_dir)
-# else:
-#     print(f"No existing directory found at: {output_dir}")
-
-# print("Directory cleanup complete.")
-# print("--------------------------------------------------------------------------------")
-
-# # Step 2: Write the DataFrame as a single CSV file
-# print(f"Writing cleaned data to: {output_dir}")
-# df_ball_by_ball.coalesce(1) \
-#     .write \
-#     .option("header", "true") \
-#     .mode("overwrite") \
-#     .csv(output_uri)
-
-# print("Write complete!")
-# print("--------------------------------------------------------------------------------")
-
 
 # ------------------------------------------------------------------------------------------------------------------------
 # ⚙️ 1. Spark Session Initialization
@@ -69,19 +44,27 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     initial_count = df.count()
     print(f"Initial Record Count: {initial_count}")
 
+
     if integer_columns:
         print("Cleaning integer columns by replacing blanks/nulls with 0...")
         for col_name in integer_columns:
             if col_name in df.columns:
                 df = df.withColumn(
                     col_name,
-                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(0))
-                    .otherwise(col(col_name).cast("int"))
+                    when(
+                        col(col_name).isNull() | (trim(col(col_name).cast("string")) == ""),
+                        lit(0)
+                    ).otherwise(col(col_name).cast("int"))
                 )
-    for col_name in integer_columns:
-        if col_name in df.columns:
-            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-            print(f"Integer Column '{col_name}': {count_nulls} blanks/nulls replaced with 0")
+
+        # Logging counts of replacements
+        for col_name in integer_columns:
+            if col_name in df.columns:
+                count_nulls_or_blanks = df.filter(
+                    col(col_name).isNull() | (trim(col(col_name).cast("string")) == "")
+                ).count()
+                print(f"Integer Column '{col_name}': {count_nulls_or_blanks} blanks/nulls replaced with 0")
+
 
 
     if boolean_columns:
@@ -408,23 +391,23 @@ print(f"NULL_String_count ('') values in 'player_out': {NULL_String_count}")
 # df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-# df_ball_by_ball = clean_dataframe(
-#     df_ball_by_ball,
-#     key_columns=["match_id", "over_id", "ball_id"],
-#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-#     boolean_columns=[
-#         "caught", "bowled", "run_out", "lbw", "retired_hurt",
-#         "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
-#     ],
-#     integer_columns=[
-#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-#     ],
-#     date_columns=["match_date"],
-#     dedup_columns=["match_id", "over_id", "ball_id"],
-#     table_name="Ball_By_Ball"
-# )
+df_ball_by_ball = clean_dataframe(
+    df_ball_by_ball,
+    key_columns=["match_id", "over_id", "ball_id"],
+    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+    boolean_columns=[
+        "caught", "bowled", "run_out", "lbw", "retired_hurt",
+        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+    ],
+    integer_columns=[
+        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+    ],
+    date_columns=["match_date"],
+    dedup_columns=["match_id", "over_id", "ball_id"],
+    table_name="Ball_By_Ball"
+)
 
 # # Define output directory
 # output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
