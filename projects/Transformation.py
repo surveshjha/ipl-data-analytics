@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col,avg,sum
+from pyspark.sql.window import Window
 
 # Initialize Spark Session (if not already)
 print("[INFO] Initializing Spark session...")
@@ -58,6 +59,11 @@ total_and_avg_runs = df_ball_by_ball.groupBy("match_id", "innings_no").agg(
     avg("runs_scored").alias("average_runs")
 ).orderBy("total_runs",ascending=False)
 total_and_avg_runs.show()
+
+WindowSpec=Window.partitionBy("match_id","innings_no").orderBy("over_id")
+
+df_ball_by_ball=df_ball_by_ball.withColumn("running_total_runs",sum("runs_scored").over(WindowSpec))
+df_ball_by_ball.select("match_id,over_id,ball_id,running_total_runs").show(10)
 
 # total_and_avg_runs.show()
 # dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
