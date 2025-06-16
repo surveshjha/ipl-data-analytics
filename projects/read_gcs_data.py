@@ -140,25 +140,25 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     print(f"Date formatting done. Record count: {after_date_conversion}")
     
      #Step 5: Deduplication
-     if dedup_columns:
-         print(f"Step 5 - Removing duplicates using: {dedup_columns}")
-         before_dedup = df.count()
-         df = df.dropDuplicates(dedup_columns)
-         after_dedup = df.count()
-         print(f"After deduplication: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
-     else:
+    if dedup_columns:
+        print(f"Step 5 - Removing duplicates using: {dedup_columns}")
+        before_dedup = df.count()
+        df = df.dropDuplicates(dedup_columns)
+        after_dedup = df.count()
+        print(f"After deduplication: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
+    else:
          after_dedup = after_date_conversion
      # Final Summary
-     print("Final Cleaning Summary:")
-     print(f"Initial Records           : {initial_count}")
-     print(f"After NULL Row Drop       : {after_null_drop}")
-     print(f"After Key Filter          : {after_key_filter}")
-     print(f"After String Clean        : {after_string_clean}")
-     print(f"After Date Conversion     : {after_date_conversion}")
-     print(f"After deduplication       : {after_dedup}")
-     print(f"Final Cleaned Record Count: {after_dedup}")
-     print("Cleaning Complete!")
-     print("----------------------------------------------------------------------------------------------------------------------")
+    print("Final Cleaning Summary:")
+    print(f"Initial Records           : {initial_count}")
+    print(f"After NULL Row Drop       : {after_null_drop}")
+    print(f"After Key Filter          : {after_key_filter}")
+    print(f"After String Clean        : {after_string_clean}")
+    print(f"After Date Conversion     : {after_date_conversion}")
+    print(f"After deduplication       : {after_dedup}")
+    print(f"Final Cleaned Record Count: {after_dedup}")
+    print("Cleaning Complete!")
+    print("----------------------------------------------------------------------------------------------------------------------")
 
     return df
 
