@@ -374,107 +374,108 @@ print("[COMPLETED] IPL Data Analysis environment is ready.")
 #Filtering nulls in key columns
 #Standardize string columns
 #Convert date columns
-# print("--------------------------------------------------------------------------------")
-# print(" Ball by Ball Data Cleaning Started...")
-# team_mapping = {
-#     "1": "Kolkata Knight Riders",
-#     "2": "Royal Challengers Bangalore",
-#     "3": "Chennai Super Kings",
-#     "4": "Kings XI Punjab",
-#     "5": "Rajasthan Royals",
-#     "6": "Delhi Daredevils",
-#     "7": "Mumbai Indians",
-#     "8": "Deccan Chargers",
-#     "9": "Kochi Tuskers Kerala",
-#     "10": "Pune Warriors",
-#     "11": "Sunrisers Hyderabad",
-#     "12": "Rising Pune Supergiants",
-#     "13": "Gujarat Lions"
-# }
+print("--------------------------------*********************************CLEANING DATASET STARTED*********************************------------------------------------------------")
+print("--------------------------------------------------------------------------------")
+print(" Ball by Ball Data Cleaning Started...")
+team_mapping = {
+    "1": "Kolkata Knight Riders",
+    "2": "Royal Challengers Bangalore",
+    "3": "Chennai Super Kings",
+    "4": "Kings XI Punjab",
+    "5": "Rajasthan Royals",
+    "6": "Delhi Daredevils",
+    "7": "Mumbai Indians",
+    "8": "Deccan Chargers",
+    "9": "Kochi Tuskers Kerala",
+    "10": "Pune Warriors",
+    "11": "Sunrisers Hyderabad",
+    "12": "Rising Pune Supergiants",
+    "13": "Gujarat Lions"
+}
 
-# # Step X: Map numeric codes in team columns to actual team names
-# print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
-# for col_name in ["team_batting", "team_bowling"]:
-#     df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
+# Step X: Map numeric codes in team columns to actual team names
+print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
+for col_name in ["team_batting", "team_bowling"]:
+    df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
-# print("Team mapping applied.")
-# print("See Results:")
-# df_ball_by_ball.select("team_batting","team_bowling").show(10)
+print("Team mapping applied.")
+print("See Results:")
+df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-# df_ball_by_ball_cleaned  = clean_dataframe(
-#     df_ball_by_ball,
-#     key_columns=["match_id", "over_id", "ball_id"],
-#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-#     # boolean_columns=
-#     # [
-#     #     "caught", "bowled", "run_out", "lbw", "retired_hurt",
-#     #     "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket","keeper_catch"
-#     # ],
-#     integer_columns=[
-#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-#     ],
-#     date_columns=["match_date"],
-#     dedup_columns=["match_id", "over_id", "ball_id"],
-#     table_name="Ball_By_Ball"
-# )
+df_ball_by_ball_cleaned  = clean_dataframe(
+    df_ball_by_ball,
+    key_columns=["match_id", "over_id", "ball_id"],
+    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+    # boolean_columns=
+    # [
+    #     "caught", "bowled", "run_out", "lbw", "retired_hurt",
+    #     "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket","keeper_catch"
+    # ],
+    integer_columns=[
+        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+    ],
+    date_columns=["match_date"],
+    dedup_columns=["match_id", "over_id", "ball_id"],
+    table_name="Ball_By_Ball"
+)
 
-# print(f"Writing df_ball_by_ball_cleaned data to: output_dir")
-# df_ball_by_ball_cleaned.coalesce(1) \
-#     .write \
-#     .option("header", "true") \
-#     .mode("overwrite") \
-#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Ball_By_Ball')
+print(f"Writing df_ball_by_ball_cleaned data to: output_dir")
+df_ball_by_ball_cleaned.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Ball_By_Ball')
 
-# print("Write complete!")
-# print(" Ball by Ball Data Cleaning ENDED...")
+print("Write complete!")
+print(" Ball by Ball Data Cleaning ENDED...")
 
-# print("--------------------------------------------------------------------------------")
+print("--------------------------------------------------------------------------------")
 
-# print("--------------------------------------------------------------------------------")
-# print(" Match Data Cleaning Started...")
+print("--------------------------------------------------------------------------------")
+print(" Match Data Cleaning Started...")
 
-# df_match_cleaned = clean_dataframe(
-#     df_match,
-#     key_columns=["match_id"],
-#     string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
-#     date_columns=["match_date"],
-#     dedup_columns=["match_id"],
-#     table_name="Match"
-# )
-# print(f"Writing df_match_cleaned data to: output_dir")
-# df_match_cleaned.coalesce(1) \
-#     .write \
-#     .option("header", "true") \
-#     .mode("overwrite") \
-#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Match')
+df_match_cleaned = clean_dataframe(
+    df_match,
+    key_columns=["match_id"],
+    string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
+    date_columns=["match_date"],
+    dedup_columns=["match_id"],
+    table_name="Match"
+)
+print(f"Writing df_match_cleaned data to: output_dir")
+df_match_cleaned.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Match')
 
-# print(" Match Data Cleaning ENDED...")
+print(" Match Data Cleaning ENDED...")
 
-# print("--------------------------------------------------------------------------------")
+print("--------------------------------------------------------------------------------")
 
-# print("--------------------------------------------------------------------------------")
-# print(" Player Data Cleaning Started...")
-# df_player_cleaned = clean_dataframe(
-#     df_player,
-#     key_columns=["player_id"],
-#     string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
-#     date_columns=["dob"],
-#     dedup_columns=["player_id"],
-#     table_name="Player"
-# )
-# print(f"Writing df_player_cleaned data to: output_dir")
-# df_player_cleaned.coalesce(1) \
-#     .write \
-#     .option("header", "true") \
-#     .mode("overwrite") \
-#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Player')
+print("--------------------------------------------------------------------------------")
+print(" Player Data Cleaning Started...")
+df_player_cleaned = clean_dataframe(
+    df_player,
+    key_columns=["player_id"],
+    string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
+    date_columns=["dob"],
+    dedup_columns=["player_id"],
+    table_name="Player"
+)
+print(f"Writing df_player_cleaned data to: output_dir")
+df_player_cleaned.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Player')
 
-# print(" Player Data Cleaning ENDED...")
+print(" Player Data Cleaning ENDED...")
 
-# print("--------------------------------------------------------------------------------")
+print("--------------------------------------------------------------------------------")
 
 print("--------------------------------------------------------------------------------")
 print(" Player Match Data Cleaning Started...")
@@ -497,109 +498,26 @@ print(" Player Match Data Cleaning ENDED...")
 
 print("--------------------------------------------------------------------------------")
 
-# print("--------------------------------------------------------------------------------")
-# print(" Team Data Cleaning Started...")
-# df_team_cleaned = clean_dataframe(
-#     df_team,
-#     key_columns=["team_id"],
-#     string_columns=["team_name"],
-#     dedup_columns=["team_id"],
-#     table_name="Team"
-# )
-# print(f"Writing df_team_cleaned data to: output_dir")
-# df_team_cleaned.coalesce(1) \
-#     .write \
-#     .option("header", "true") \
-#     .mode("overwrite") \
-#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Team')
+print("--------------------------------------------------------------------------------")
+print(" Team Data Cleaning Started...")
+df_team_cleaned = clean_dataframe(
+    df_team,
+    key_columns=["team_id"],
+    string_columns=["team_name"],
+    dedup_columns=["team_id"],
+    table_name="Team"
+)
+print(f"Writing df_team_cleaned data to: output_dir")
+df_team_cleaned.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Team')
 
-# print(" Team Data Cleaning ENDED...")
+print(" Team Data Cleaning ENDED...")
 
-# print("--------------------------------------------------------------------------------")
+print("--------------------------------------------------------------------------------")
 
-
-
-
-
-
-# # ------------------------------------------------------------------------------------------------------------------------
-# # DATA CLEANING COMPLETED
-# # ------------------------------------------------------------------------------------------------------------------------
-# # Initial Record Count
-# initial_count = df_ball_by_ball.count()
-# print(f" Initial Record Count: {initial_count}")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-# # Step 1: Drop completely null rows
-# print("Step 1: Dropping rows where all columns are NULL...")
-# df_ball_by_ball = df_ball_by_ball.dropna(how="all")
-# after_null_drop = df_ball_by_ball.count()
-# print(f" Rows after NULL drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-# # Step 2: Filter out rows with missing essential keys
-# print("Step 2: Filtering out rows with missing Match_id, Over_id, or Ball_id...")
-# df_ball_by_ball = df_ball_by_ball.filter(
-#     col("Match_id").isNotNull() &
-#     col("Over_id").isNotNull() &
-#     col("Ball_id").isNotNull()
-# )
-# after_key_filter = df_ball_by_ball.count()
-# print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-# # Step 3: Standardizing string columns
-# print("Step 3: Standardizing string columns (Team_Batting, Team_Bowling, Extra_Type, Out_type)...")
-# string_cols = ["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"]
-
-# for col_name in string_cols:
-#     df_ball_by_ball = df_ball_by_ball.withColumn(
-#         col_name,
-#         initcap(
-#             regexp_replace(trim(lower(col(col_name))), " +", " ")
-#         )
-#     )
-# after_string_clean = df_ball_by_ball.count()
-# print(f" String formatting applied. Record count remains: {after_string_clean}")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-# # Step 4: Convert Match_Date to DateType
-# print("Step 4: Converting Match_Date to DateType...")
-# df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", to_date("Match_Date", "yyyy-MM-dd"))
-# after_date_conversion = df_ball_by_ball.count()
-# print(f"Date conversion done. Record count remains: {after_date_conversion}")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-# # Step 5: Drop duplicates based on key columns
-# print("Step 5: Dropping duplicates based on Match_id, Over_id, Ball_id...")
-# before_dedup = df_ball_by_ball.count()
-# df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
-# after_dedup = df_ball_by_ball.count()
-# print(f" After dropping duplicates: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-# # Final Summary
-# print(" Cleaning Summary:")
-# print(f" Initial Records           : {initial_count}")
-# print(f" After NULL Row Drop       : {after_null_drop}")
-# print(f" After Key Filter          : {after_key_filter}")
-# print(f" After String Clean        : {after_string_clean}")
-# print(f" After Date Conversion     : {after_date_conversion}")
-# print(f" After dropping duplicates : {after_dedup}")
-# print(f" Final Cleaned Record Count: {after_dedup}")
-# print("Data Cleaning Complete!")
-# print("----------------------------------------------------------------------------------------------------------------------")
-
-
-
-
-
-
-
-
-# ------------------------------------------------------------------------------------------------------------------------
-# DATA LOADING
-# ------------------------------------------------------------------------------------------------------------------------
-
+print("--------------------------------*********************************CLEANING DATASET ENDED*********************************------------------------------------------------")
 
 

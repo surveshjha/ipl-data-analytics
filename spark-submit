@@ -1,2 +1,4 @@
-spark-submit --jars "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar" "E:\\DataEngineering\\Ipl-Analytics\\projects\\read_gcs_data.py"
+spark-submit --jars "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar" "E:\\DataEngineering\\Ipl-Analytics\\projects\\Ingestion.py"
+spark-submit --jars "E:\\DataEngineering\\Ipl-Analytics\\jars\\gcs-connector-hadoop3-2.2.5-shaded.jar" "E:\\DataEngineering\\Ipl-Analytics\\projects\\test.py"
+
 
