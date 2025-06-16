@@ -21,6 +21,7 @@ for table in table_names:
     print(f"\n[INFO] Reading table: {table}")
     try:
         df = spark.read.option('inferschema','true').option("header", True).csv(full_path)
-        df.show(5, truncate=False)
+        # df.show(5, truncate=False)
+        df.printSchema()
     except Exception as e:
         print(f"[ERROR] Failed to read table {table}: {e}")
