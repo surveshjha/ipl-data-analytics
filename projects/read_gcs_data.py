@@ -288,7 +288,7 @@ player_schema = StructType([
 
 player_match_schema = StructType([
     StructField("player_match_sk", IntegerType(), True),
-    StructField("playermatch_key", DecimalType(20, 10), True),  # Adjust precision/scale as needed
+    StructField("playermatch_key",StringType(), True),  # Adjust precision/scale as needed
     StructField("match_id", IntegerType(), True),
     StructField("player_id", IntegerType(), True),
     StructField("player_name", StringType(), True),
@@ -455,35 +455,35 @@ print("[COMPLETED] IPL Data Analysis environment is ready.")
 
 # print("--------------------------------------------------------------------------------")
 
-print("--------------------------------------------------------------------------------")
-print(" Player Data Cleaning Started...")
-df_player_cleaned = clean_dataframe(
-    df_player,
-    key_columns=["player_id"],
-    string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
-    date_columns=["dob"],
-    dedup_columns=["player_id"],
-    table_name="Player"
-)
-print(f"Writing df_player_cleaned data to: output_dir")
-df_player_cleaned.coalesce(1) \
-    .write \
-    .option("header", "true") \
-    .mode("overwrite") \
-    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Player')
+# print("--------------------------------------------------------------------------------")
+# print(" Player Data Cleaning Started...")
+# df_player_cleaned = clean_dataframe(
+#     df_player,
+#     key_columns=["player_id"],
+#     string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
+#     date_columns=["dob"],
+#     dedup_columns=["player_id"],
+#     table_name="Player"
+# )
+# print(f"Writing df_player_cleaned data to: output_dir")
+# df_player_cleaned.coalesce(1) \
+#     .write \
+#     .option("header", "true") \
+#     .mode("overwrite") \
+#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Player')
 
-print(" Player Data Cleaning ENDED...")
+# print(" Player Data Cleaning ENDED...")
 
-print("--------------------------------------------------------------------------------")
+# print("--------------------------------------------------------------------------------")
 
 print("--------------------------------------------------------------------------------")
 print(" Player Match Data Cleaning Started...")
 df_player_match_cleaned = clean_dataframe(
     df_player_match,
-    key_columns=["player_match_sk"],
+    key_columns=["player_match_sk","playermatch_key"],
     string_columns=["player_name", "batting_hand", "bowling_skill", "country_name", "role_desc", "player_team", "opposit_team", "batting_status", "bowling_status", "player_captain", "opposit_captain", "player_keeper", "opposit_keeper"],
     date_columns=["dob"],
-    dedup_columns=["player_match_sk"],
+    dedup_columns=["player_match_sk","playermatch_key"],
     table_name="Player_Match"
 )
 print(f"Writing df_player_match_cleaned data to: output_dir")
@@ -497,25 +497,25 @@ print(" Player Match Data Cleaning ENDED...")
 
 print("--------------------------------------------------------------------------------")
 
-print("--------------------------------------------------------------------------------")
-print(" Team Data Cleaning Started...")
-df_team_cleaned = clean_dataframe(
-    df_team,
-    key_columns=["team_id"],
-    string_columns=["team_name"],
-    dedup_columns=["team_id"],
-    table_name="Team"
-)
-print(f"Writing df_team_cleaned data to: output_dir")
-df_team_cleaned.coalesce(1) \
-    .write \
-    .option("header", "true") \
-    .mode("overwrite") \
-    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Team')
+# print("--------------------------------------------------------------------------------")
+# print(" Team Data Cleaning Started...")
+# df_team_cleaned = clean_dataframe(
+#     df_team,
+#     key_columns=["team_id"],
+#     string_columns=["team_name"],
+#     dedup_columns=["team_id"],
+#     table_name="Team"
+# )
+# print(f"Writing df_team_cleaned data to: output_dir")
+# df_team_cleaned.coalesce(1) \
+#     .write \
+#     .option("header", "true") \
+#     .mode("overwrite") \
+#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Team')
 
-print(" Team Data Cleaning ENDED...")
+# print(" Team Data Cleaning ENDED...")
 
-print("--------------------------------------------------------------------------------")
+# print("--------------------------------------------------------------------------------")
 
 
 
