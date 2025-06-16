@@ -137,7 +137,7 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
         for col_name in date_columns:
             df = parse_date_column(df, col_name)
     
-    print(f"Date formatting done. Record count: {after_date_conversion}")
+    # print(f"Date formatting done. Record count: {after_date_conversion}")
 
     # Step 5: Deduplication
     # if dedup_columns:
