@@ -49,12 +49,14 @@ for table in table_names:
 
 df_ball_by_ball=dataframes["Ball_By_Ball"]
 df_ball_by_ball.printSchema()
+
 print(f"Total Deliverries {df_ball_by_ball.count()}")
-df_ball_by_ball=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
-print(f"Valid Deliverries {df_ball_by_ball.count()}")
+df_valid_deliveries=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
+print(f"Valid Deliverries {df_valid_deliveries.count()}")
 
 
-total_and_avg_runs = df_ball_by_ball.groupBy("match_id", "innings_no").agg(
+total_and_avg_runs =df_valid_deliveries.filter((col("wides")==0)&(col("noballs")==0))
+.groupBy("match_id", "innings_no").agg(
     sum("runs_scored").alias("total_runs"),
     avg("runs_scored").alias("average_runs")
 ).orderBy("total_runs",ascending=False)
@@ -62,17 +64,12 @@ total_and_avg_runs.show()
 
 WindowSpec=Window.partitionBy("match_id","innings_no").orderBy("over_id")
 
-df_ball_by_ball=df_ball_by_ball.withColumn("running_total_runs",sum("runs_scored").over(WindowSpec))
-df_ball_by_ball \
-    .select("match_id", "over_id", "running_total_runs") \
-    .dropDuplicates() \
-    .filter(col("match_id") == 419142) \
-    .orderBy(col("running_total_runs").desc()) \
-    .show(20)
+df_valid_deliveries_with_runningtotal=df_valid_deliveries.withColumn("running_total_runs",sum("runs_scored").over(WindowSpec))
+# df_valid_deliveries_with_runningtotal \
+#     .select("match_id", "over_id", "running_total_runs") \
+#     .orderBy(col("running_total_runs").desc()) \
+#     .show(20)
 
-# total_and_avg_runs.show()
-# dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
-#     (col('wides') == 0) & (col("noballs") == 0)
-# )
-# count=dataframes["Ball_By_Ball"].count()
-# print(f"Valid Deliverries {count}")
+#Orange Cap Player In Each Season
+df_orangecap=df_valid_deliveries.groupBy("striker","season").agg(sum("runs_scored").alias("Total_runs")).orderBy("Total_runs").desc()
+df_orangecap.show()
