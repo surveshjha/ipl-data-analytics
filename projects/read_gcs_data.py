@@ -138,17 +138,17 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
              df = df.withColumn(
     f"{col_name}_cleaned",
     when(
-        col(f"{col_name}_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
-        to_date(col(f"{col_name}_str"), "M/d/yyyy")
+        col(f"{col_name}").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
+        to_date(col(f"{col_name}"), "M/d/yyyy")
     ).when(
-        col(f"{col_name}_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),
-        to_date(col(f"{col_name}_str"), "dd-MM-yyyy")
+        col(f"{col_name}").rlike(r"^\d{2}-\d{2}-\d{4}$"),
+        to_date(col(f"{col_name}"), "dd-MM-yyyy")
     ).otherwise(None)
 )
     after_date_conversion = df.count()
     print(f"Date formatting done. Record count: {after_date_conversion}")
 
-    df = df.withColumn(f"{col_name}_str", trim(col(col_name).cast("string")))
+    df = df.withColumn(f"{col_name}", trim(col(col_name).cast("string")))
 
     
      #Step 5: Deduplication
