@@ -125,13 +125,13 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
 
     # Final Summary
     print("Final Cleaning Summary:")
-    print(f"🔹 Initial Records           : {initial_count}")
-    print(f"🔹 After NULL Row Drop       : {after_null_drop}")
-    print(f"🔹 After Key Filter          : {after_key_filter}")
-    print(f"🔹 After String Clean        : {after_string_clean}")
-    print(f"🔹 After Date Conversion     : {after_date_conversion}")
-    print(f"🔹 After deduplication       : {after_dedup}")
-    print(f"🔹 Final Cleaned Record Count: {after_dedup}")
+    print(f"Initial Records           : {initial_count}")
+    print(f"After NULL Row Drop       : {after_null_drop}")
+    print(f"After Key Filter          : {after_key_filter}")
+    print(f"After String Clean        : {after_string_clean}")
+    print(f"After Date Conversion     : {after_date_conversion}")
+    print(f"After deduplication       : {after_dedup}")
+    print(f"Final Cleaned Record Count: {after_dedup}")
     print("Cleaning Complete!")
     print("----------------------------------------------------------------------------------------------------------------------")
 
