@@ -71,5 +71,7 @@ df_valid_deliveries_with_runningtotal=df_valid_deliveries.withColumn("running_to
 #     .show(20)
 
 #Orange Cap Player In Each Season
-df_orangecap=df_valid_deliveries.groupBy("striker","season").agg(sum("runs_scored").alias("Total_runs")).orderBy("Total_runs").desc()
+df_orangecap = df_valid_deliveries.groupBy("striker", "season") \
+    .agg(sum("runs_scored").alias("Total_runs")) \
+    .orderBy("Total_runs", ascending=False)
 df_orangecap.show()
