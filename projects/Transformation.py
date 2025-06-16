@@ -43,6 +43,6 @@ for table in table_names:
 
 #filter to include only valid deliveries i.e. there should be no wides and no noballs
 
-Ball_By_Ball=Ball_By_Ball.filter((col('wides')==0 & col("noballs")==0))
+dataframes["Ball_By_Ball"]=dataframes["Ball_By_Ball"].filter((col('wides')==0 & col("noballs")==0))
 # Ball_By_Ball.count()
-print(f"Valid Deliverries {Ball_By_Ball.count()}")
+print(f"Valid Deliverries {dataframes["Ball_By_Ball"].count()}")
