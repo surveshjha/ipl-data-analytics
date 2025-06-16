@@ -421,10 +421,11 @@ df_cleaned  = clean_dataframe(
     df_ball_by_ball,
     key_columns=["match_id", "over_id", "ball_id"],
     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-    boolean_columns=[
-        "caught", "bowled", "run_out", "lbw", "retired_hurt",
-        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket","keeper_catch"
-    ],
+    # boolean_columns=
+    # [
+    #     "caught", "bowled", "run_out", "lbw", "retired_hurt",
+    #     "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket","keeper_catch"
+    # ],
     integer_columns=[
         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
@@ -434,6 +435,12 @@ df_cleaned  = clean_dataframe(
     dedup_columns=["match_id", "over_id", "ball_id"],
     table_name="Ball_By_Ball"
 )
+
+print("[INFO] Caching cleaned DataFrame...")
+df_cleaned = df_cleaned.cache()
+df_cleaned.count()
+
+
 
 
 # # Define output directory
