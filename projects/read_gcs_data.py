@@ -41,95 +41,95 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     print(f"\n Starting Cleaning for: {table_name}")
     print("----------------------------------------------------------------------------------------------------------------------")
 
-    initial_count = df.count()
-    print(f"Initial Record Count: {initial_count}")
+    # initial_count = df.count()
+    # print(f"Initial Record Count: {initial_count}")
 
 
-    if integer_columns:
-        print("Cleaning integer columns by replacing blanks/nulls with 0...")
-        for col_name in integer_columns:
-            if col_name in df.columns:
-                df = df.withColumn(
-                    col_name,
-                    when(
-                        col(col_name).isNull() | (trim(col(col_name).cast("string")) == ""),
-                        lit(0)
-                    ).otherwise(col(col_name).cast("int"))
-                )
+    # if integer_columns:
+    #     print("Cleaning integer columns by replacing blanks/nulls with 0...")
+    #     for col_name in integer_columns:
+    #         if col_name in df.columns:
+    #             df = df.withColumn(
+    #                 col_name,
+    #                 when(
+    #                     col(col_name).isNull() | (trim(col(col_name).cast("string")) == ""),
+    #                     lit(0)
+    #                 ).otherwise(col(col_name).cast("int"))
+    #             )
 
-        # Logging counts of replacements
-        for col_name in integer_columns:
-            if col_name in df.columns:
-                count_nulls_or_blanks = df.filter(
-                    col(col_name).isNull() | (trim(col(col_name).cast("string")) == "")
-                ).count()
-                print(f"Integer Column '{col_name}': {count_nulls_or_blanks} blanks/nulls replaced with 0")
+    #     # Logging counts of replacements
+    #     for col_name in integer_columns:
+    #         if col_name in df.columns:
+    #             count_nulls_or_blanks = df.filter(
+    #                 col(col_name).isNull() | (trim(col(col_name).cast("string")) == "")
+    #             ).count()
+    #             print(f"Integer Column '{col_name}': {count_nulls_or_blanks} blanks/nulls replaced with 0")
 
 
 
-    if boolean_columns:
-        print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
-        for col_name in boolean_columns:
-            if col_name in df.columns:
-                df = df.withColumn(
-                    col_name,
-                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
-                    .otherwise(col(col_name).cast("boolean"))
-                )
-    for col_name in boolean_columns:
-        if col_name in df.columns:
-            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-            print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+    # if boolean_columns:
+    #     print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
+    #     for col_name in boolean_columns:
+    #         if col_name in df.columns:
+    #             df = df.withColumn(
+    #                 col_name,
+    #                 when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
+    #                 .otherwise(col(col_name).cast("boolean"))
+    #             )
+    # for col_name in boolean_columns:
+    #     if col_name in df.columns:
+    #         count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+    #         print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
             
 
-    # Step X: Replace blank or null string values with "BLANK" and count replacements
-    print("Replacing NULL or empty string values in string columns with 'BLANK'...")
+    # # Step X: Replace blank or null string values with "BLANK" and count replacements
+    # print("Replacing NULL or empty string values in string columns with 'BLANK'...")
 
-    for col_name in string_columns:
-        blank_condition = (col(col_name).isNull()) | (trim(col(col_name)) == "")
-        count_blank = df.filter(blank_condition).count()
+    # for col_name in string_columns:
+    #     blank_condition = (col(col_name).isNull()) | (trim(col(col_name)) == "")
+    #     count_blank = df.filter(blank_condition).count()
 
-        df = df.withColumn(
-            col_name,
-            when(blank_condition, lit("BLANK")).otherwise(col(col_name))
-        )
+    #     df = df.withColumn(
+    #         col_name,
+    #         when(blank_condition, lit("BLANK")).otherwise(col(col_name))
+    #     )
 
-        print(f"Column '{col_name}': {count_blank} values replaced with 'BLANK'")
+    #     print(f"Column '{col_name}': {count_blank} values replaced with 'BLANK'")
 
-    print("String column 'BLANK' substitution complete.")
-    print("--------------------------------------------------------------------------------")
+    # print("String column 'BLANK' substitution complete.")
+    # print("--------------------------------------------------------------------------------")
 
 
-    # Step 1: Drop rows where all columns are null
-    df = df.dropna(how="all")
-    after_null_drop = df.count()
-    print(f" Step 1 - NULL row drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
+    # # Step 1: Drop rows where all columns are null
+    # df = df.dropna(how="all")
+    # after_null_drop = df.count()
+    # print(f" Step 1 - NULL row drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
 
-    # Step 2: Filter based on essential key columns
-    if key_columns:
-        print(f" Step 2 - Filtering nulls in key columns: {key_columns}")
-        condition = None
-        for col_name in key_columns:
-            if condition is None:
-                condition = F.col(col_name).isNotNull()
-            else:
-                condition &= F.col(col_name).isNotNull()
-        df = df.filter(condition)
-    after_key_filter = df.count()
-    print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
+    # # Step 2: Filter based on essential key columns
+    # if key_columns:
+    #     print(f" Step 2 - Filtering nulls in key columns: {key_columns}")
+    #     condition = None
+    #     for col_name in key_columns:
+    #         if condition is None:
+    #             condition = F.col(col_name).isNotNull()
+    #         else:
+    #             condition &= F.col(col_name).isNotNull()
+    #     df = df.filter(condition)
+    # after_key_filter = df.count()
+    # print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
 
-    # Step 3: Standardize string columns
-    if string_columns:
-        print(f"Step 3 - Cleaning string columns: {string_columns}")
-        for col_name in string_columns:
-            df = df.withColumn(
-                col_name,
-                initcap(
-                    regexp_replace(trim(lower(F.col(col_name))), " +", " ")
-                )
-            )
-    after_string_clean = df.count()
-    print(f"String columns cleaned. Record count: {after_string_clean}")
+    # # Step 3: Standardize string columns
+    # if string_columns:
+    #     print(f"Step 3 - Cleaning string columns: {string_columns}")
+    #     for col_name in string_columns:
+    #         df = df.withColumn(
+    #             col_name,
+    #             initcap(
+    #                 regexp_replace(trim(lower(F.col(col_name))), " +", " ")
+    #             )
+    #         )
+    # after_string_clean = df.count()
+    # print(f"String columns cleaned. Record count: {after_string_clean}")
 
     # Step 4: Convert date columns
     if date_columns:
@@ -140,26 +140,26 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     print(f"Date formatting done. Record count: {after_date_conversion}")
 
     # Step 5: Deduplication
-    if dedup_columns:
-        print(f"Step 5 - Removing duplicates using: {dedup_columns}")
-        before_dedup = df.count()
-        df = df.dropDuplicates(dedup_columns)
-        after_dedup = df.count()
-        print(f"After deduplication: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
-    else:
-        after_dedup = after_date_conversion
+    # if dedup_columns:
+    #     print(f"Step 5 - Removing duplicates using: {dedup_columns}")
+    #     before_dedup = df.count()
+    #     df = df.dropDuplicates(dedup_columns)
+    #     after_dedup = df.count()
+    #     print(f"After deduplication: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
+    # else:
+    #     after_dedup = after_date_conversion
 
-    # Final Summary
-    print("Final Cleaning Summary:")
-    print(f"Initial Records           : {initial_count}")
-    print(f"After NULL Row Drop       : {after_null_drop}")
-    print(f"After Key Filter          : {after_key_filter}")
-    print(f"After String Clean        : {after_string_clean}")
-    print(f"After Date Conversion     : {after_date_conversion}")
-    print(f"After deduplication       : {after_dedup}")
-    print(f"Final Cleaned Record Count: {after_dedup}")
-    print("Cleaning Complete!")
-    print("----------------------------------------------------------------------------------------------------------------------")
+    # # Final Summary
+    # print("Final Cleaning Summary:")
+    # print(f"Initial Records           : {initial_count}")
+    # print(f"After NULL Row Drop       : {after_null_drop}")
+    # print(f"After Key Filter          : {after_key_filter}")
+    # print(f"After String Clean        : {after_string_clean}")
+    # print(f"After Date Conversion     : {after_date_conversion}")
+    # print(f"After deduplication       : {after_dedup}")
+    # print(f"Final Cleaned Record Count: {after_dedup}")
+    # print("Cleaning Complete!")
+    # print("----------------------------------------------------------------------------------------------------------------------")
 
     return df
 
@@ -398,27 +398,21 @@ team_mapping = {
 # df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-# df_cleaned  = clean_dataframe(
-#     df_ball_by_ball,
-#     key_columns=["match_id", "over_id", "ball_id"],
-#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-#     boolean_columns=[
-#         "caught", "bowled", "run_out", "lbw", "retired_hurt",
-#         "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
-#     ],
-#     integer_columns=[
-#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-#     ],
-#     date_columns=["match_date"],
-#     dedup_columns=["match_id", "over_id", "ball_id"],
-#     table_name="Ball_By_Ball"
-# )
-
 df_cleaned  = clean_dataframe(
     df_ball_by_ball,
+    key_columns=["match_id", "over_id", "ball_id"],
+    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+    boolean_columns=[
+        "caught", "bowled", "run_out", "lbw", "retired_hurt",
+        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+    ],
+    integer_columns=[
+        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+    ],
     date_columns=["match_date"],
+    dedup_columns=["match_id", "over_id", "ball_id"],
     table_name="Ball_By_Ball"
 )
 
