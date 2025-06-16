@@ -50,7 +50,7 @@ df_ball_by_ball=dataframes["Ball_By_Ball"]
 df_ball_by_ball.printSchema()
 
 df_ball_by_ball=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
-df_ball_by_ball.count()
+print(f"Valid Deliverries {df_ball_by_ball.count()}")
 
 # total_and_avg_runs=df_ball_by_ball.groupBy("match_id","innings_no").agg(sum("runs_scored".alias("total_runs")),
 #                                                                         avg("runs_scored").alias("Average_Runs")
