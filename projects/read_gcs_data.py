@@ -43,34 +43,34 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     initial_count = df.count()
     print(f"Initial Record Count: {initial_count}")
 
-    if integer_columns:
-        print("Cleaning integer columns by replacing blanks/nulls with 0...")
-        for col_name in integer_columns:
-            if col_name in df.columns:
-                df = df.withColumn(
-                    col_name,
-                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(0))
-                    .otherwise(col(col_name).cast("int"))
-                )
-    for col_name in integer_columns:
-        if col_name in df.columns:
-            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-            print(f"Integer Column '{col_name}': {count_nulls} blanks/nulls replaced with 0")
+    # if integer_columns:
+    #     print("Cleaning integer columns by replacing blanks/nulls with 0...")
+    #     for col_name in integer_columns:
+    #         if col_name in df.columns:
+    #             df = df.withColumn(
+    #                 col_name,
+    #                 when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(0))
+    #                 .otherwise(col(col_name).cast("int"))
+    #             )
+    # for col_name in integer_columns:
+    #     if col_name in df.columns:
+    #         count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+    #         print(f"Integer Column '{col_name}': {count_nulls} blanks/nulls replaced with 0")
 
 
-    if boolean_columns:
-        print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
-        for col_name in boolean_columns:
-            if col_name in df.columns:
-                df = df.withColumn(
-                    col_name,
-                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
-                    .otherwise(col(col_name).cast("boolean"))
-                )
-    for col_name in boolean_columns:
-        if col_name in df.columns:
-            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-            print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+    # if boolean_columns:
+    #     print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
+    #     for col_name in boolean_columns:
+    #         if col_name in df.columns:
+    #             df = df.withColumn(
+    #                 col_name,
+    #                 when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
+    #                 .otherwise(col(col_name).cast("boolean"))
+    #             )
+    # for col_name in boolean_columns:
+    #     if col_name in df.columns:
+    #         count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+    #         print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
 
 
 
@@ -85,9 +85,9 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
         condition = None
         for col_name in key_columns:
             if condition is None:
-                condition = F.col(col_name).isNotNull() & F.col(col_name) != ''
+                condition = F.col(col_name).isNotNull()
             else:
-                condition &= F.col(col_name).isNotNull() & F.col(col_name) != ''
+                condition &= F.col(col_name).isNotNull()
         df = df.filter(condition)
     after_key_filter = df.count()
     print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
@@ -278,21 +278,21 @@ try:
     df_ball_by_ball = spark.read.schema(ball_by_ball_schema).option("header", "true").csv("gs://ipl-data-project/Ball_By_Ball.csv")
     print("[SUCCESS] Ball_By_Ball.csv loaded. Row count:", df_ball_by_ball.count())
 
-    print("[INFO] Loading Match.csv...")
-    df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
-    print("[SUCCESS] Match.csv loaded. Row count:", df_match.count())
+    # print("[INFO] Loading Match.csv...")
+    # df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
+    # print("[SUCCESS] Match.csv loaded. Row count:", df_match.count())
 
-    print("[INFO] Loading Player.csv...")
-    df_player = spark.read.schema(player_schema).option("header", "true").csv("gs://ipl-data-project/Player.csv")
-    print("[SUCCESS] Player.csv loaded. Row count:", df_player.count())
+    # print("[INFO] Loading Player.csv...")
+    # df_player = spark.read.schema(player_schema).option("header", "true").csv("gs://ipl-data-project/Player.csv")
+    # print("[SUCCESS] Player.csv loaded. Row count:", df_player.count())
 
-    print("[INFO] Loading Player_match.csv...")
-    df_player_match = spark.read.schema(player_match_schema).option("header", "true").csv("gs://ipl-data-project/Player_match.csv")
-    print("[SUCCESS] Player_match.csv loaded. Row count:", df_player_match.count())
+    # print("[INFO] Loading Player_match.csv...")
+    # df_player_match = spark.read.schema(player_match_schema).option("header", "true").csv("gs://ipl-data-project/Player_match.csv")
+    # print("[SUCCESS] Player_match.csv loaded. Row count:", df_player_match.count())
 
-    print("[INFO] Loading Team.csv...")
-    df_team = spark.read.schema(team_schema).option("header", "true").csv("gs://ipl-data-project/Team.csv")
-    print("[SUCCESS] Team.csv loaded. Row count:", df_team.count())
+    # print("[INFO] Loading Team.csv...")
+    # df_team = spark.read.schema(team_schema).option("header", "true").csv("gs://ipl-data-project/Team.csv")
+    # print("[SUCCESS] Team.csv loaded. Row count:", df_team.count())
 
 except Exception as e:
     print("[ERROR] Failed during data loading:", e)
@@ -341,13 +341,13 @@ team_mapping = {
 }
 
 # Step X: Map numeric codes in team columns to actual team names
-print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
-for col_name in ["team_batting", "team_bowling"]:
-    df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
+# print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
+# for col_name in ["team_batting", "team_bowling"]:
+#     df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
-print("Team mapping applied.")
-print("See Results:")
-df_ball_by_ball.select("team_batting","team_bowling").show(10)
+# print("Team mapping applied.")
+# print("See Results:")
+# df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
 df_ball_by_ball = clean_dataframe(
