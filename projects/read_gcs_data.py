@@ -368,17 +368,17 @@ team_mapping = {
 
 from pyspark.sql.functions import col, trim, isnan
 
-# Count NULL values
-null_count = df_ball_by_ball.filter(col("player_out").isNull()).count()
-print(f"NULL values in 'player_out': {null_count}")
+# # Count NULL values
+# null_count = df_ball_by_ball.filter(col("player_out").isNull()).count()
+# print(f"NULL values in 'player_out': {null_count}")
 
-# Count Blank (empty string or spaces) values
-blank_count = df_ball_by_ball.filter(trim(col("player_out")) == "").count()
-print(f"Blank ('') values in 'player_out': {blank_count}")
+# # Count Blank (empty string or spaces) values
+# blank_count = df_ball_by_ball.filter(trim(col("player_out")) == "").count()
+# print(f"Blank ('') values in 'player_out': {blank_count}")
 
-# Count Blank (empty string or spaces) values
-NULL_String_count = df_ball_by_ball.filter(trim(col("player_out")) == "NULL").count()
-print(f"NULL_String_count ('') values in 'player_out': {NULL_String_count}")
+# # Count Blank (empty string or spaces) values
+# NULL_String_count = df_ball_by_ball.filter(trim(col("player_out")) == "NULL").count()
+# print(f"NULL_String_count ('') values in 'player_out': {NULL_String_count}")
 
 
 # Step X: Map numeric codes in team columns to actual team names
@@ -391,7 +391,7 @@ print(f"NULL_String_count ('') values in 'player_out': {NULL_String_count}")
 # df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-df_ball_by_ball = clean_dataframe(
+df_cleaned  = clean_dataframe(
     df_ball_by_ball,
     key_columns=["match_id", "over_id", "ball_id"],
     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
@@ -425,7 +425,7 @@ df_ball_by_ball = clean_dataframe(
 
 # Step 2: Write the DataFrame as a single CSV file
 print(f"Writing cleaned data to: output_dir")
-df_ball_by_ball.coalesce(1) \
+df_cleaned.coalesce(1) \
     .write \
     .option("header", "true") \
     .mode("overwrite") \
