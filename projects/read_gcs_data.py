@@ -43,34 +43,34 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     initial_count = df.count()
     print(f"Initial Record Count: {initial_count}")
 
-    # if integer_columns:
-    #     print("Cleaning integer columns by replacing blanks/nulls with 0...")
-    #     for col_name in integer_columns:
-    #         if col_name in df.columns:
-    #             df = df.withColumn(
-    #                 col_name,
-    #                 when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(0))
-    #                 .otherwise(col(col_name).cast("int"))
-    #             )
-    # for col_name in integer_columns:
-    #     if col_name in df.columns:
-    #         count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-    #         print(f"Integer Column '{col_name}': {count_nulls} blanks/nulls replaced with 0")
+    if integer_columns:
+        print("Cleaning integer columns by replacing blanks/nulls with 0...")
+        for col_name in integer_columns:
+            if col_name in df.columns:
+                df = df.withColumn(
+                    col_name,
+                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(0))
+                    .otherwise(col(col_name).cast("int"))
+                )
+    for col_name in integer_columns:
+        if col_name in df.columns:
+            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+            print(f"Integer Column '{col_name}': {count_nulls} blanks/nulls replaced with 0")
 
 
-    # if boolean_columns:
-    #     print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
-    #     for col_name in boolean_columns:
-    #         if col_name in df.columns:
-    #             df = df.withColumn(
-    #                 col_name,
-    #                 when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
-    #                 .otherwise(col(col_name).cast("boolean"))
-    #             )
-    # for col_name in boolean_columns:
-    #     if col_name in df.columns:
-    #         count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-    #         print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+    if boolean_columns:
+        print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
+        for col_name in boolean_columns:
+            if col_name in df.columns:
+                df = df.withColumn(
+                    col_name,
+                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
+                    .otherwise(col(col_name).cast("boolean"))
+                )
+    for col_name in boolean_columns:
+        if col_name in df.columns:
+            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+            print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
 
 
 
@@ -341,32 +341,32 @@ team_mapping = {
 }
 
 # Step X: Map numeric codes in team columns to actual team names
-# print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
-# for col_name in ["team_batting", "team_bowling"]:
-#     df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
+print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
+for col_name in ["team_batting", "team_bowling"]:
+    df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
-# print("Team mapping applied.")
-# print("See Results:")
-# df_ball_by_ball.select("team_batting","team_bowling").show(10)
+print("Team mapping applied.")
+print("See Results:")
+df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-# df_ball_by_ball = clean_dataframe(
-#     df_ball_by_ball,
-#     key_columns=["match_id", "over_id", "ball_id"],
-#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-#     boolean_columns=[
-#         "caught", "bowled", "run_out", "lbw", "retired_hurt",
-#         "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
-#     ],
-#     integer_columns=[
-#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-#     ],
-#     date_columns=["match_date"],
-#     dedup_columns=["match_id", "over_id", "ball_id"],
-#     table_name="Ball_By_Ball"
-# )
+df_ball_by_ball = clean_dataframe(
+    df_ball_by_ball,
+    key_columns=["match_id", "over_id", "ball_id"],
+    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+    boolean_columns=[
+        "caught", "bowled", "run_out", "lbw", "retired_hurt",
+        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+    ],
+    integer_columns=[
+        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+    ],
+    date_columns=["match_date"],
+    dedup_columns=["match_id", "over_id", "ball_id"],
+    table_name="Ball_By_Ball"
+)
 
 df_ball_by_ball.coalesce(1) \
     .write \
