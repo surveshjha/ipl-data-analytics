@@ -350,25 +350,30 @@ team_mapping = {
 # df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-df_ball_by_ball = clean_dataframe(
-    df_ball_by_ball,
-    key_columns=["match_id", "over_id", "ball_id"],
-    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-    boolean_columns=[
-        "caught", "bowled", "run_out", "lbw", "retired_hurt",
-        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
-    ],
-    integer_columns=[
-        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-    ],
-    date_columns=["match_date"],
-    dedup_columns=["match_id", "over_id", "ball_id"],
-    table_name="Ball_By_Ball"
-)
+# df_ball_by_ball = clean_dataframe(
+#     df_ball_by_ball,
+#     key_columns=["match_id", "over_id", "ball_id"],
+#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+#     boolean_columns=[
+#         "caught", "bowled", "run_out", "lbw", "retired_hurt",
+#         "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+#     ],
+#     integer_columns=[
+#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+#     ],
+#     date_columns=["match_date"],
+#     dedup_columns=["match_id", "over_id", "ball_id"],
+#     table_name="Ball_By_Ball"
+# )
 
-df_ball_by_ball.write.coalesce(1).format('csv').save('E:\DataEngineering\Ipl-Analytics\cleaned-data')
+df_ball_by_ball.write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .coalesce(1) \
+    .csv("E:/DataEngineering/Ipl-Analytics/cleaned-data")
+
 
 # df_match = clean_dataframe(
 #     df_match,
