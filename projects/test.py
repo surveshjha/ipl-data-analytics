@@ -45,16 +45,16 @@ ball_by_ball_schema = StructType([
     StructField("penalty", IntegerType(), True),
     StructField("bowler_extras", IntegerType(), True),
     StructField("out_type", StringType(), True),
-    StructField("caught", BooleanType(), True),
-    StructField("bowled", BooleanType(), True),
-    StructField("run_out", BooleanType(), True),
-    StructField("lbw", BooleanType(), True),
-    StructField("retired_hurt", BooleanType(), True),
-    StructField("stumped", BooleanType(), True),
-    StructField("caught_and_bowled", BooleanType(), True),
-    StructField("hit_wicket", BooleanType(), True),
-    StructField("obstructingfeild", BooleanType(), True),
-    StructField("bowler_wicket", BooleanType(), True),
+    StructField("caught", IntegerType(), True),
+    StructField("bowled", IntegerType(), True),
+    StructField("run_out", IntegerType(), True),
+    StructField("lbw", IntegerType(), True),
+    StructField("retired_hurt", IntegerType(), True),
+    StructField("stumped", IntegerType(), True),
+    StructField("caught_and_bowled", IntegerType(), True),
+    StructField("hit_wicket", IntegerType(), True),
+    StructField("obstructingfeild", IntegerType(), True),
+    StructField("bowler_wicket", IntegerType(), True),
     StructField("match_date", StringType(), True),
     StructField("season", IntegerType(), True),
     StructField("striker", IntegerType(), True),
@@ -73,10 +73,11 @@ ball_by_ball_schema = StructType([
     StructField("playerout_match_sk", IntegerType(), True),
     StructField("battingteam_sk", IntegerType(), True),
     StructField("bowlingteam_sk", IntegerType(), True),
-    StructField("keeper_catch", BooleanType(), True),
+    StructField("keeper_catch", IntegerType(), True),
     StructField("player_out_sk", IntegerType(), True),
     StructField("matchdatesk", IntegerType(), True),
 ])
+
 
 try:
     print("[INFO] Loading Ball_By_Ball.csv...")
@@ -87,28 +88,36 @@ except Exception as e:
     print("[ERROR] Failed during data loading:", e)
 
 
-from pyspark.sql.functions import col, when, to_date, trim
+# from pyspark.sql.functions import col, when, to_date, trim
 
-# Step 1: Ensure date column is clean string
-df_ball_by_ball = df_ball_by_ball.withColumn("match_date_str", trim(col("match_date").cast("string")))
+# # Step 1: Ensure date column is clean string
+# df_ball_by_ball = df_ball_by_ball.withColumn("match_date_str", trim(col("match_date").cast("string")))
 
-# Step 2: Apply parsing with correct formats
-df_ball_by_ball = df_ball_by_ball.withColumn(
-    "match_date_cleaned",
-    when(
-        col("match_date_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
-        to_date(col("match_date_str"), "M/d/yyyy")
-    ).when(
-        col("match_date_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),
-        to_date(col("match_date_str"), "dd-MM-yyyy")
-    ).otherwise(None)
-)
+# # Step 2: Apply parsing with correct formats
+# df_ball_by_ball = df_ball_by_ball.withColumn(
+#     "match_date_cleaned",
+#     when(
+#         col("match_date_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
+#         to_date(col("match_date_str"), "M/d/yyyy")
+#     ).when(
+#         col("match_date_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),
+#         to_date(col("match_date_str"), "dd-MM-yyyy")
+#     ).otherwise(None)
+# )
 
-# Optional: Show how it parsed
-df_ball_by_ball.select("match_date_str", "match_date_cleaned").show(20, False)
+# # Optional: Show how it parsed
+# df_ball_by_ball.select("match_date_str", "match_date_cleaned").show(20, False)
 
-df_ball_by_ball.printSchema()
+# df_ball_by_ball.printSchema()
 
+print(f"Writing cleaned data to: output_dir")
+df_cleaned.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned_data_test')
 
+print("Write complete!")
+print("--------------------------------------------------------------------------------")
 
 
