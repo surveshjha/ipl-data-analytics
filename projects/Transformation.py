@@ -1,7 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType)
-from pyspark.sql import functions as F
-from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col, when, lit, to_date
+from pyspark.sql.functions import col
 
 # Initialize Spark Session (if not already)
 print("[INFO] Initializing Spark session...")
