@@ -1,4 +1,7 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.types import (StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType)
+from pyspark.sql import functions as F
+from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col, when, lit, to_date
 
 # Initialize Spark Session (if not already)
 print("[INFO] Initializing Spark session...")
@@ -44,5 +47,5 @@ for table in table_names:
 #filter to include only valid deliveries i.e. there should be no wides and no noballs
 
 dataframes["Ball_By_Ball"]=dataframes["Ball_By_Ball"].filter((col('wides')==0 & col("noballs")==0))
-# Ball_By_Ball.count()
-print(f"Valid Deliverries {dataframes["Ball_By_Ball"].count()}")
+count=dataframes["Ball_By_Ball"].count()
+print(f"Valid Deliverries {count}")
