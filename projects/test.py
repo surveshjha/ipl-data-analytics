@@ -90,19 +90,28 @@ except Exception as e:
 from pyspark.sql.functions import col, to_date, when, date_format
 
 # 1. Create a temporary column to hold the original date for comparison
-df_ball_by_ball = df_ball_by_ball.withColumn("original_match_date", col("match_date"))
+
+from pyspark.sql.functions import col, when, to_date
+
+# Step 1: Cast to string
+df_ball_by_ball = df_ball_by_ball.withColumn("match_date_str", col("match_date").cast("string"))
 
 # 2. Convert match_date from known formats to a proper date
 df_ball_by_ball = df_ball_by_ball.withColumn(
-    "match_date",
-    when(col("match_date").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"), to_date(col("match_date"), "MM/dd/yyyy"))
-    .when(col("match_date").rlike(r"^\d{2}-\d{2}-\d{4}$"), to_date(col("match_date"), "dd-MM-yyyy"))
-    .otherwise(None)
+    "match_date_cleaned",
+    when(
+        col("match_date_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
+        to_date(col("match_date_str"), "MM/dd/yyyy")
+    ).when(
+        col("match_date_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),
+        to_date(col("match_date_str"), "dd/MM/yyyy")
+    ).otherwise(None)
 )
 
+
 # 3. Format match_date into uniform yyyy-MM-dd string format
-df_ball_by_ball = df_ball_by_ball.withColumn("match_date", date_format(col("match_date"), "yyyy-MM-dd"))
+# df_ball_by_ball = df_ball_by_ball.withColumn("match_date", date_format(col("match_date"), "yyyy-MM-dd"))
 
 # 4. Show side-by-side: original vs. cleaned
-df_ball_by_ball.select("original_match_date", "match_date").show(20, False)
+df_ball_by_ball.select("match_date_str", "match_date_cleaned","match_date").show(20, False)
 
