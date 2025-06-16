@@ -360,7 +360,7 @@ df_ball_by_ball = clean_dataframe(
                     "hit_wicket",
                     "ObstructingFeild",
                     "Bowler_Wicket",
-                    ]
+                    ],
     integer_columns=[
                     'Striker_Batting_Position',
                     'Runs_Score',
@@ -376,7 +376,7 @@ df_ball_by_ball = clean_dataframe(
                     'Bowler',
                     'Player_Out',
                     'Fielders'
-                    ]
+                    ],
     date_columns=["Match_Date"],
     dedup_columns=["Match_id", "Over_id", "Ball_id"],
     table_name="Ball_By_Ball"
