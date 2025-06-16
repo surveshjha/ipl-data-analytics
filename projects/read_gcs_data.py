@@ -67,19 +67,27 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
 
 
 
+    from pyspark.sql.functions import lower
+
     if boolean_columns:
         print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
         for col_name in boolean_columns:
             if col_name in df.columns:
                 df = df.withColumn(
                     col_name,
-                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
-                    .otherwise(col(col_name).cast("boolean"))
+                    when(col(col_name).isNull(), lit(False))
+                    .when(lower(col(col_name).cast("string")).isin("true", "1"), lit(True))
+                    .when(lower(col(col_name).cast("string")).isin("false", "0", "", "null"), lit(False))
+                    .otherwise(lit(False))  # default fallback
                 )
-    for col_name in boolean_columns:
-        if col_name in df.columns:
-            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-            print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+
+        for col_name in boolean_columns:
+            if col_name in df.columns:
+                count_nulls = df.filter(
+                    col(col_name).isNull() | (lower(col(col_name).cast("string")).isin("", "null"))
+                ).count()
+                print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+
             
 
     # Step X: Replace blank or null string values with "BLANK" and count replacements
@@ -415,7 +423,7 @@ df_cleaned  = clean_dataframe(
     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
     boolean_columns=[
         "caught", "bowled", "run_out", "lbw", "retired_hurt",
-        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket","keeper_catch"
     ],
     integer_columns=[
         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
