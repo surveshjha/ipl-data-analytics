@@ -98,8 +98,8 @@ df_orangecap = df_valid_deliveries.groupBy("striker", "season").agg(
 df_Player = dataframes["Player"]
 
 df_orangecap_named = df_orangecap.join(
-    dataframes["Player"],
-    df_orangecap["striker"] == dataframes["Player"]["player_id"],
+    df_Player,
+    df_orangecap["striker"] == df_Player["player_id"],
     how="left"
 ).select(
     "striker", "player_name", "season", "total_runs"
