@@ -135,11 +135,20 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     if date_columns:
         print(f"Step 4 - Formatting date columns: {date_columns}")
         for col_name in date_columns:
-             df = df.withColumn(col(col_name)+"_cleaned",when(col(col_name)+"_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),to_date(col(col_name)+"_str"), "M/d/yyyy").when(col(col_name)+"_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),to_date(col("match_date_str"), "dd-MM-yyyy")).otherwise(None))
+             df = df.withColumn(
+    f"{col_name}_cleaned",
+    when(
+        col(f"{col_name}_str").rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"),
+        to_date(col(f"{col_name}_str"), "M/d/yyyy")
+    ).when(
+        col(f"{col_name}_str").rlike(r"^\d{2}-\d{2}-\d{4}$"),
+        to_date(col(f"{col_name}_str"), "dd-MM-yyyy")
+    ).otherwise(None)
+)
     after_date_conversion = df.count()
     print(f"Date formatting done. Record count: {after_date_conversion}")
 
-    df = df.withColumn(col(col_name)+"_str", trim(col(col_name).cast("string")))
+    df = df.withColumn(f"{col_name}_str", trim(col(col_name).cast("string")))
 
     
      #Step 5: Deduplication
