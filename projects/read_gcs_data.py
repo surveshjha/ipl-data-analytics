@@ -104,9 +104,9 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
 
     for col_name in string_columns:
         blank_condition = (col(col_name).isNull()) | (trim(col(col_name)) == "")
-        count_blank = df_ball_by_ball.filter(blank_condition).count()
+        count_blank = df.filter(blank_condition).count()
 
-        df_ball_by_ball = df_ball_by_ball.withColumn(
+        df = df.withColumn(
             col_name,
             when(blank_condition, lit("BLANK")).otherwise(col(col_name))
         )
