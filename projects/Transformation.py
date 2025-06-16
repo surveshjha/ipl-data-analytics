@@ -68,7 +68,7 @@ df_ball_by_ball \
     .dropDuplicates() \
     .filter(col("match_id") == 419142) \
     .orderBy(col("running_total_runs").desc()) \
-    .show(10)
+    .show(20)
 
 # total_and_avg_runs.show()
 # dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
