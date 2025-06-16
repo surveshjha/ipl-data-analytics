@@ -70,8 +70,11 @@ df_valid_deliveries_with_runningtotal=df_valid_deliveries.withColumn("running_to
 #     .orderBy(col("running_total_runs").desc()) \
 #     .show(20)
 
-#Orange Cap Player In Each Season
+from pyspark.sql.functions import col, sum
+
 df_orangecap = df_valid_deliveries.groupBy("striker", "season") \
     .agg(sum("runs_scored").alias("Total_runs")) \
-    .orderBy("Total_runs", ascending=False)
+    .orderBy(col("Total_runs").desc())
+
 df_orangecap.show()
+
