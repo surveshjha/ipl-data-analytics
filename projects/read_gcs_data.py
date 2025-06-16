@@ -424,15 +424,15 @@ df_ball_by_ball = clean_dataframe(
 # print("--------------------------------------------------------------------------------")
 
 # Step 2: Write the DataFrame as a single CSV file
-# print(f"Writing cleaned data to: output_dir")
-# df_ball_by_ball.coalesce(1) \
-#     .write \
-#     .option("header", "true") \
-#     .mode("overwrite") \
-#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data')
+print(f"Writing cleaned data to: output_dir")
+df_ball_by_ball.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data')
 
-# print("Write complete!")
-# print("--------------------------------------------------------------------------------")
+print("Write complete!")
+print("--------------------------------------------------------------------------------")
 
 
 
