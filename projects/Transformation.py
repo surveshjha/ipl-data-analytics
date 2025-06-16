@@ -110,4 +110,7 @@ df_orangecap_named.orderBy(col("total_runs").desc()).show(10)
 
 #When was the ipl first match played and where
 df_Match=dataframes["Match"]
-df_valid_deliveries.join(df_Match,df_valid_deliveries["match_id"]==df_Match["match_id"],how="left").select("match_date","venue_name").show(10)
+df_valid_deliveries.alias("vdl") \
+    .join(dataframes["Match"].alias("mt"), col("vdl.match_id") == col("mt.match_id"), how="left") \
+    .select("mt.match_date", "mt.venue_name") \
+    .show(10)
