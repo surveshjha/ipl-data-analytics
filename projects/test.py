@@ -107,4 +107,8 @@ df_ball_by_ball = df_ball_by_ball.withColumn(
 # Optional: Show how it parsed
 df_ball_by_ball.select("match_date_str", "match_date_cleaned").show(20, False)
 
+df_ball_by_ball.printSchema()
+
+
+
 
