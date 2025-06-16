@@ -58,17 +58,16 @@ def clean_dataframe(df, key_columns=None,string_columns=None, integer_columns=No
                 )
 
         # Logging counts of replacements
-        for col_name in integer_columns:
-            if col_name in df.columns:
-                count_nulls_or_blanks = df.filter(
-                    col(col_name).isNull() | (trim(col(col_name).cast("string")) == "")
-                ).count()
-                print(f"Integer Column '{col_name}': {count_nulls_or_blanks} blanks/nulls replaced with 0")
+        # for col_name in integer_columns:
+        #     if col_name in df.columns:
+        #         count_nulls_or_blanks = df.filter(
+        #             col(col_name).isNull() | (trim(col(col_name).cast("string")) == "")
+        #         ).count()
+        #         print(f"Integer Column '{col_name}': {count_nulls_or_blanks} blanks/nulls replaced with 0")
 
 
 
-    from pyspark.sql.functions import lower
-
+    # from pyspark.sql.functions import lower
     # if boolean_columns:
     #     print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
     #     for col_name in boolean_columns:
@@ -102,7 +101,7 @@ def clean_dataframe(df, key_columns=None,string_columns=None, integer_columns=No
             when(blank_condition, lit("BLANK")).otherwise(col(col_name))
         )
 
-        print(f"Column '{col_name}': {count_blank} values replaced with 'BLANK'")
+        # print(f"Column '{col_name}': {count_blank} values replaced with 'BLANK'")
 
     print("String column 'BLANK' substitution complete.")
     print("--------------------------------------------------------------------------------")
@@ -262,7 +261,7 @@ match_schema = StructType([
     StructField("match_id", IntegerType(), True),
     StructField("team1", StringType(), True),
     StructField("team2", StringType(), True),
-    StructField("match_date", DateType(), True),
+    StructField("match_date", StringType(), True),
     StructField("season_year", IntegerType(), True),  # Year as IntegerType
     StructField("venue_name", StringType(), True),
     StructField("city_name", StringType(), True),
@@ -330,9 +329,9 @@ try:
     df_ball_by_ball = spark.read.schema(ball_by_ball_schema).option("header", "true").csv("gs://ipl-data-project/Ball_By_Ball.csv")
     print("[SUCCESS] Ball_By_Ball.csv loaded. Row count:", df_ball_by_ball.count())
 
-    # print("[INFO] Loading Match.csv...")
-    # df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
-    # print("[SUCCESS] Match.csv loaded. Row count:", df_match.count())
+    print("[INFO] Loading Match.csv...")
+    df_match = spark.read.schema(match_schema).option("header", "true").csv("gs://ipl-data-project/Match.csv")
+    print("[SUCCESS] Match.csv loaded. Row count:", df_match.count())
 
     # print("[INFO] Loading Player.csv...")
     # df_player = spark.read.schema(player_schema).option("header", "true").csv("gs://ipl-data-project/Player.csv")
@@ -356,7 +355,7 @@ except Exception as e:
 print("\n[INFO] Printing all schemas for verification...")
 
 df_ball_by_ball.printSchema()
-# df_match.printSchema()
+df_match.printSchema()
 # df_player.printSchema()
 # df_player_match.printSchema()
 # df_team.printSchema()
@@ -375,7 +374,8 @@ print("[COMPLETED] IPL Data Analysis environment is ready.")
 #Filtering nulls in key columns
 #Standardize string columns
 #Convert date columns
-#Dedeuplication
+print("--------------------------------------------------------------------------------")
+print(" Ball by Ball Data Cleaning Started...")
 team_mapping = {
     "1": "Kolkata Knight Riders",
     "2": "Royal Challengers Bangalore",
@@ -392,21 +392,6 @@ team_mapping = {
     "13": "Gujarat Lions"
 }
 
-# from pyspark.sql.functions import col, trim, isnan
-
-# # Count NULL values
-# null_count = df_ball_by_ball.filter(col("player_out").isNull()).count()
-# print(f"NULL values in 'player_out': {null_count}")
-
-# # Count Blank (empty string or spaces) values
-# blank_count = df_ball_by_ball.filter(trim(col("player_out")) == "").count()
-# print(f"Blank ('') values in 'player_out': {blank_count}")
-
-# # Count Blank (empty string or spaces) values
-# NULL_String_count = df_ball_by_ball.filter(trim(col("player_out")) == "NULL").count()
-# print(f"NULL_String_count ('') values in 'player_out': {NULL_String_count}")
-
-
 # Step X: Map numeric codes in team columns to actual team names
 print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
 for col_name in ["team_batting", "team_bowling"]:
@@ -417,7 +402,7 @@ print("See Results:")
 df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-df_cleaned  = clean_dataframe(
+df_ball_by_ball_cleaned  = clean_dataframe(
     df_ball_by_ball,
     key_columns=["match_id", "over_id", "ball_id"],
     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
@@ -436,49 +421,36 @@ df_cleaned  = clean_dataframe(
     table_name="Ball_By_Ball"
 )
 
-print("[INFO] Caching cleaned DataFrame...")
-df_cleaned = df_cleaned.cache()
-df_cleaned.count()
-
-
-
-
-# # Define output directory
-# output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
-# output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
-
-# # Step 1: Delete existing directory if it exists
-# if os.path.exists(output_dir):
-#     print(f"Deleting existing directory: {output_dir}")
-#     shutil.rmtree(output_dir)
-# else:
-#     print(f"No existing directory found at: {output_dir}")
-
-# print("Directory cleanup complete.")
-# print("--------------------------------------------------------------------------------")
-
-# Step 2: Write the DataFrame as a single CSV file
-print(f"Writing cleaned data to: output_dir")
-df_cleaned.coalesce(1) \
+print(f"Writing df_ball_by_ball_cleaned data to: output_dir")
+df_ball_by_ball_cleaned.coalesce(1) \
     .write \
     .option("header", "true") \
     .mode("overwrite") \
-    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data')
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Ball_By_Ball')
 
 print("Write complete!")
+print(" Ball by Ball Data Cleaning ENDED...")
+
 print("--------------------------------------------------------------------------------")
 
+print("--------------------------------------------------------------------------------")
+print(" Match Data Cleaning Started...")
 
+df_match_cleaned = clean_dataframe(
+    df_match,
+    key_columns=["match_id"],
+    string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
+    date_columns=["match_date"],
+    dedup_columns=["match_id"],
+    table_name="Match"
+)
+print(f"Writing df_match_cleaned data to: output_dir")
+df_match_cleaned.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data/Match')
 
-
-# df_match = clean_dataframe(
-#     df_match,
-#     key_columns=["match_id"],
-#     string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
-#     date_columns=["match_date"],
-#     dedup_columns=["match_id"],
-#     table_name="Match"
-# )
 
 # df_player = clean_dataframe(
 #     df_player,
