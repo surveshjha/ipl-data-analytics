@@ -56,7 +56,7 @@ print(f"Valid Deliverries {df_ball_by_ball.count()}")
 total_and_avg_runs = df_ball_by_ball.groupBy("match_id", "innings_no").agg(
     sum("runs_scored").alias("total_runs"),
     avg("runs_scored").alias("average_runs")
-)
+).orderBy("total_runs",ascending=False)
 total_and_avg_runs.show()
 
 # total_and_avg_runs.show()
