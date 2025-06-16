@@ -137,13 +137,15 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
 
     return df
 
-def map_team_names(df,column,mapping_dict):
-    expr=None
-    for code,name in mapping_dict.items():
-        condition = (col(column)==code)
-        expr=when(condition,name) if expr is None else expr.when(condition,name)
-    expr=expr.Otherwise(col(column))
-    return df.withColumn(column,expr)
+
+def map_team_names(df, column, mapping_dict):
+    expr = None
+    for code, name in mapping_dict.items():
+        condition = (col(column) == code)
+        expr = when(condition, name) if expr is None else expr.when(condition, name)
+    expr = expr.otherwise(col(column))
+    return df.withColumn(column, expr)
+
 
 
 # ------------------------------------------------------------------------------------------------------------------------
@@ -339,10 +341,9 @@ team_mapping = {
 }
 
 # Step X: Map numeric codes in team columns to actual team names
-print("Mapping numeric team codes to full names in Team_Batting and Team_Bowling...")
+print("✅ Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
 for col_name in ["team_batting", "team_bowling"]:
-    df_ball_by_ball = df_ball_by_ball.withColumn(col_name,when(col(col_name).isin(team_mapping.keys()), team_mapping[col(col_name)])
-            .otherwise(col(col_name)))
+    df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
 print("Team mapping applied.")
 print("See Results:")
