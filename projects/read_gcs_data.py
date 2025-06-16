@@ -69,24 +69,24 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
 
     from pyspark.sql.functions import lower
 
-    if boolean_columns:
-        print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
-        for col_name in boolean_columns:
-            if col_name in df.columns:
-                df = df.withColumn(
-                    col_name,
-                    when(col(col_name).isNull(), lit(False))
-                    .when(lower(col(col_name).cast("string")).isin("true", "1"), lit(True))
-                    .when(lower(col(col_name).cast("string")).isin("false", "0", "", "null"), lit(False))
-                    .otherwise(lit(False))  # default fallback
-                )
+    # if boolean_columns:
+    #     print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
+    #     for col_name in boolean_columns:
+    #         if col_name in df.columns:
+    #             df = df.withColumn(
+    #                 col_name,
+    #                 when(col(col_name).isNull(), lit(False))
+    #                 .when(lower(col(col_name).cast("string")).isin("true", "1"), lit(True))
+    #                 .when(lower(col(col_name).cast("string")).isin("false", "0", "", "null"), lit(False))
+    #                 .otherwise(lit(False))  # default fallback
+    #             )
 
-        for col_name in boolean_columns:
-            if col_name in df.columns:
-                count_nulls = df.filter(
-                    col(col_name).isNull() | (lower(col(col_name).cast("string")).isin("", "null"))
-                ).count()
-                print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+    #     for col_name in boolean_columns:
+    #         if col_name in df.columns:
+    #             count_nulls = df.filter(
+    #                 col(col_name).isNull() | (lower(col(col_name).cast("string")).isin("", "null"))
+    #             ).count()
+    #             print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
 
             
 
