@@ -341,7 +341,7 @@ team_mapping = {
 }
 
 # Step X: Map numeric codes in team columns to actual team names
-print("✅ Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
+print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
 for col_name in ["team_batting", "team_bowling"]:
     df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
