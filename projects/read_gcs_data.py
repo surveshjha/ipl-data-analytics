@@ -37,7 +37,7 @@ print("[INFO] Spark session initialized successfully.")
 # ------------------------------------------------------------------------------------------------------------------------
 
 
-def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=None, integer_columns=None,date_columns=None, dedup_columns=None, table_name="Table"):
+def clean_dataframe(df, key_columns=None,string_columns=None, integer_columns=None,date_columns=None, dedup_columns=None, table_name="Table"):
     print(f"\n Starting Cleaning for: {table_name}")
     print("----------------------------------------------------------------------------------------------------------------------")
 
