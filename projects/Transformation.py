@@ -48,7 +48,7 @@ for table in table_names:
 
 df_ball_by_ball=dataframes["Ball_By_Ball"]
 df_ball_by_ball.printSchema()
-
+print(f"Total Deliverries {df_ball_by_ball.count()}")
 df_ball_by_ball=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
 print(f"Valid Deliverries {df_ball_by_ball.count()}")
 
