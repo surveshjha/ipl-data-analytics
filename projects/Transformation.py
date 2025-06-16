@@ -113,4 +113,5 @@ df_Match=dataframes["Match"]
 df_valid_deliveries.alias("vdl") \
     .join(dataframes["Match"].alias("mt"), col("vdl.match_id") == col("mt.match_id"), how="left") \
     .select("mt.match_date", "mt.venue_name") \
+    .orderBy("mt.match_date") \
     .show(10)
