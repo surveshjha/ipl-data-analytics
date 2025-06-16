@@ -29,7 +29,17 @@ for table in table_names:
     print(f"\n[INFO] Reading table: {table}")
     try:
         df = spark.read.option('inferschema','true').option("header", True).csv(full_path)
-        # df.show(5, truncate=False)
-        df.printSchema()
+        df.createOrReplaceTempView(f'{table}')
     except Exception as e:
         print(f"[ERROR] Failed to read table {table}: {e}")
+
+df=spark.sql('''select ball_id
+,match_id
+,over_id
+,innings_no
+,team_batting
+,team_bowling
+,striker_batting_position
+,extra_type
+ from Ball_By_Ball ''')
+df.show(10)
