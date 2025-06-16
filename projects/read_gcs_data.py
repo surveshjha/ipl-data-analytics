@@ -340,45 +340,26 @@ team_mapping = {
 
 # Step X: Map numeric codes in team columns to actual team names
 print("Mapping numeric team codes to full names in Team_Batting and Team_Bowling...")
-df_ball_by_ball = map_team_names(df_ball_by_ball, "Team_Batting", team_mapping)
-df_ball_by_ball = map_team_names(df_ball_by_ball, "Team_Bowling", team_mapping)
+df_ball_by_ball = map_team_names(df_ball_by_ball, "team_batting", team_mapping)
+df_ball_by_ball = map_team_names(df_ball_by_ball, "team_bowling", team_mapping)
 print("Team mapping applied.")
 
 
 df_ball_by_ball = clean_dataframe(
     df_ball_by_ball,
-    key_columns=["Match_id", "Over_id", "Ball_id"],
-    string_columns=["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"],
+    key_columns=["match_id", "over_id", "ball_id"],
+    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
     boolean_columns=[
-                    "Caught",
-                    "Bowled",
-                    "Run_out",
-                    "LBW",
-                    "Retired_hurt",
-                    "Stumped",
-                    "caught_and_bowled",
-                    "hit_wicket",
-                    "ObstructingFeild",
-                    "Bowler_Wicket",
-                    ],
+        "caught", "bowled", "run_out", "lbw", "retired_hurt",
+        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+    ],
     integer_columns=[
-                    'Striker_Batting_Position',
-                    'Runs_Score',
-                    'Extra_runs',
-                    'Wides',
-                    'Legbyes',
-                    'Byes',
-                    'Noballs',
-                    'Penalty',
-                    'Bowler_Extras',
-                    'Striker',
-                    'Non_Striker',
-                    'Bowler',
-                    'Player_Out',
-                    'Fielders'
-                    ],
-    date_columns=["Match_Date"],
-    dedup_columns=["Match_id", "Over_id", "Ball_id"],
+        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+    ],
+    date_columns=["match_date"],
+    dedup_columns=["match_id", "over_id", "ball_id"],
     table_name="Ball_By_Ball"
 )
 
