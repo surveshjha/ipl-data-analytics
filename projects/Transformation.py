@@ -63,7 +63,7 @@ total_and_avg_runs.show()
 WindowSpec=Window.partitionBy("match_id","innings_no").orderBy("over_id")
 
 df_ball_by_ball=df_ball_by_ball.withColumn("running_total_runs",sum("runs_scored").over(WindowSpec))
-df_ball_by_ball.select("match_id","over_id","running_total_runs").dropDuplicates().orderBy("running_total_runs",ascending=False).show(10)
+df_ball_by_ball.select("match_id","over_id","running_total_runs").dropDuplicates().filter("match_id"==419142).orderBy("running_total_runs",ascending=False).show(10)
 
 # total_and_avg_runs.show()
 # dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
