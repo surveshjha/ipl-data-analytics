@@ -2,6 +2,34 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import (StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType)
 from pyspark.sql import functions as F
 from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col, when, lit, to_date
+import os
+import shutil
+
+# Define output directory
+output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
+output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
+
+# Step 1: Delete existing directory if it exists
+if os.path.exists(output_dir):
+    print(f"Deleting existing directory: {output_dir}")
+    shutil.rmtree(output_dir)
+else:
+    print(f"No existing directory found at: {output_dir}")
+
+print("Directory cleanup complete.")
+print("--------------------------------------------------------------------------------")
+
+# Step 2: Write the DataFrame as a single CSV file
+print(f"Writing cleaned data to: {output_dir}")
+df_ball_by_ball.coalesce(1) \
+    .write \
+    .option("header", "true") \
+    .mode("overwrite") \
+    .csv(output_uri)
+
+print("Write complete!")
+print("--------------------------------------------------------------------------------")
+
 
 # ------------------------------------------------------------------------------------------------------------------------
 # ⚙️ 1. Spark Session Initialization
@@ -71,7 +99,24 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
         if col_name in df.columns:
             count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
             print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+            
 
+    # Step X: Replace blank or null string values with "BLANK" and count replacements
+    print("Replacing NULL or empty string values in string columns with 'BLANK'...")
+
+    for col_name in string_columns:
+        blank_condition = (col(col_name).isNull()) | (trim(col(col_name)) == "")
+        count_blank = df_ball_by_ball.filter(blank_condition).count()
+
+        df_ball_by_ball = df_ball_by_ball.withColumn(
+            col_name,
+            when(blank_condition, lit("BLANK")).otherwise(col(col_name))
+        )
+
+        print(f"Column '{col_name}': {count_blank} values replaced with 'BLANK'")
+
+    print("String column 'BLANK' substitution complete.")
+    print("--------------------------------------------------------------------------------")
 
 
     # Step 1: Drop rows where all columns are null
@@ -368,11 +413,30 @@ df_ball_by_ball = clean_dataframe(
     table_name="Ball_By_Ball"
 )
 
+# Define output directory
+# output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
+# output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
+
+# # Step 1: Delete existing directory if it exists
+# if os.path.exists(output_dir):
+#     print(f"Deleting existing directory: {output_dir}")
+#     shutil.rmtree(output_dir)
+# else:
+#     print(f"No existing directory found at: {output_dir}")
+
+# print("Directory cleanup complete.")
+# print("--------------------------------------------------------------------------------")
+
+# Step 2: Write the DataFrame as a single CSV file
+print(f"Writing cleaned data to: {output_dir}")
 df_ball_by_ball.coalesce(1) \
     .write \
     .option("header", "true") \
     .mode("overwrite") \
-    .csv("file:///E:/DataEngineering/Ipl-Analytics/cleaned-data")
+    .csv(output_uri)
+
+print("Write complete!")
+print("--------------------------------------------------------------------------------")
 
 
 
