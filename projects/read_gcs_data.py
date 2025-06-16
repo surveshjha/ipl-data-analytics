@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import (StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType)
 from pyspark.sql import functions as F
-from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col
+from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col,when
 
 # ------------------------------------------------------------------------------------------------------------------------
 # ⚙️ 1. Spark Session Initialization
@@ -36,12 +36,43 @@ print("[INFO] Spark session initialized successfully.")
 # ------------------------------------------------------------------------------------------------------------------------
 
 
-def clean_dataframe(df, key_columns=None, string_columns=None, date_columns=None, dedup_columns=None, table_name="Table"):
+def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=None, integer_columns=None,date_columns=None, dedup_columns=None, table_name="Table"):
     print(f"\n Starting Cleaning for: {table_name}")
     print("----------------------------------------------------------------------------------------------------------------------")
 
     initial_count = df.count()
     print(f"Initial Record Count: {initial_count}")
+
+    if integer_columns:
+        print("Cleaning integer columns by replacing blanks/nulls with 0...")
+        for col_name in integer_columns:
+            if col_name in df.columns:
+                df = df.withColumn(
+                    col_name,
+                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(0))
+                    .otherwise(col(col_name).cast("int"))
+                )
+    for col_name in integer_columns:
+        if col_name in df.columns:
+            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+            print(f"Integer Column '{col_name}': {count_nulls} blanks/nulls replaced with 0")
+
+
+    if boolean_columns:
+        print("Cleaning boolean columns by replacing blanks/nulls with False (0)...")
+        for col_name in boolean_columns:
+            if col_name in df.columns:
+                df = df.withColumn(
+                    col_name,
+                    when(col(col_name).isNull() | (trim(col(col_name)) == ""), lit(False))
+                    .otherwise(col(col_name).cast("boolean"))
+                )
+    for col_name in boolean_columns:
+        if col_name in df.columns:
+            count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
+            print(f"🟡Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+
+
 
     # Step 1: Drop rows where all columns are null
     df = df.dropna(how="all")
@@ -54,9 +85,9 @@ def clean_dataframe(df, key_columns=None, string_columns=None, date_columns=None
         condition = None
         for col_name in key_columns:
             if condition is None:
-                condition = F.col(col_name).isNotNull()
+                condition = F.col(col_name).isNotNull() & F.col(col_name) != ''
             else:
-                condition &= F.col(col_name).isNotNull()
+                condition &= F.col(col_name).isNotNull() & F.col(col_name) != ''
         df = df.filter(condition)
     after_key_filter = df.count()
     print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
@@ -105,6 +136,14 @@ def clean_dataframe(df, key_columns=None, string_columns=None, date_columns=None
     print("----------------------------------------------------------------------------------------------------------------------")
 
     return df
+
+def map_team_names(df,column,mapping_dict):
+    expr=None
+    for code,name in mapping_dict.items():
+        condition = (col(column)==code)
+        expr=when(condition,name) if expr is None else expr.when(condition,name)
+    expr=expr.Otherwise(col(column))
+    return df.withColumn(column,expr)
 
 
 # ------------------------------------------------------------------------------------------------------------------------
@@ -278,118 +317,176 @@ print("[COMPLETED] IPL Data Analysis environment is ready.")
 # ------------------------------------------------------------------------------------------------------------------------
 # DATA CLEANING STARTED
 # ------------------------------------------------------------------------------------------------------------------------
+
+#Filtering nulls in key columns
+#Standardize string columns
+#Convert date columns
+#Dedeuplication
+team_mapping = {
+    "1": "Kolkata Knight Riders",
+    "2": "Royal Challengers Bangalore",
+    "3": "Chennai Super Kings",
+    "4": "Kings XI Punjab",
+    "5": "Rajasthan Royals",
+    "6": "Delhi Daredevils",
+    "7": "Mumbai Indians",
+    "8": "Deccan Chargers",
+    "9": "Kochi Tuskers Kerala",
+    "10": "Pune Warriors",
+    "11": "Sunrisers Hyderabad",
+    "12": "Rising Pune Supergiants",
+    "13": "Gujarat Lions"
+}
+
+# Step X: Map numeric codes in team columns to actual team names
+print("Mapping numeric team codes to full names in Team_Batting and Team_Bowling...")
+df_ball_by_ball = map_team_names(df_ball_by_ball, "Team_Batting", team_mapping)
+df_ball_by_ball = map_team_names(df_ball_by_ball, "Team_Bowling", team_mapping)
+print("Team mapping applied.")
+
+
 df_ball_by_ball = clean_dataframe(
     df_ball_by_ball,
     key_columns=["Match_id", "Over_id", "Ball_id"],
     string_columns=["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"],
+    boolean_columns=[
+                    "Caught",
+                    "Bowled",
+                    "Run_out",
+                    "LBW",
+                    "Retired_hurt",
+                    "Stumped",
+                    "caught_and_bowled",
+                    "hit_wicket",
+                    "ObstructingFeild",
+                    "Bowler_Wicket",
+                    ]
+    integer_columns=[
+                    'Striker_Batting_Position',
+                    'Runs_Score',
+                    'Extra_runs',
+                    'Wides',
+                    'Legbyes',
+                    'Byes',
+                    'Noballs',
+                    'Penalty',
+                    'Bowler_Extras',
+                    'Striker',
+                    'Non_Striker',
+                    'Bowler',
+                    'Player_Out',
+                    'Fielders'
+                    ]
     date_columns=["Match_Date"],
     dedup_columns=["Match_id", "Over_id", "Ball_id"],
     table_name="Ball_By_Ball"
 )
 
-df_match = clean_dataframe(
-    df_match,
-    key_columns=["match_id"],
-    string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
-    date_columns=["match_date"],
-    dedup_columns=["match_id"],
-    table_name="Match"
-)
+df_ball_by_ball.write.coalesce(1).format('csv').save('E:\DataEngineering\Ipl-Analytics\cleaned-data')
 
-df_player = clean_dataframe(
-    df_player,
-    key_columns=["player_id"],
-    string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
-    date_columns=["dob"],
-    dedup_columns=["player_id"],
-    table_name="Player"
-)
+# df_match = clean_dataframe(
+#     df_match,
+#     key_columns=["match_id"],
+#     string_columns=["team1", "team2", "venue_name", "city_name", "country_name", "toss_winner", "match_winner", "toss_name", "win_type", "outcome_type", "manofmach"],
+#     date_columns=["match_date"],
+#     dedup_columns=["match_id"],
+#     table_name="Match"
+# )
 
-df_player_match = clean_dataframe(
-    df_player_match,
-    key_columns=["player_match_sk"],
-    string_columns=["player_name", "batting_hand", "bowling_skill", "country_name", "role_desc", "player_team", "opposit_team", "batting_status", "bowling_status", "player_captain", "opposit_captain", "player_keeper", "opposit_keeper"],
-    date_columns=["dob"],
-    dedup_columns=["player_match_sk"],
-    table_name="Player_Match"
-)
+# df_player = clean_dataframe(
+#     df_player,
+#     key_columns=["player_id"],
+#     string_columns=["player_name", "batting_hand", "bowling_skill", "country_name"],
+#     date_columns=["dob"],
+#     dedup_columns=["player_id"],
+#     table_name="Player"
+# )
 
-df_team = clean_dataframe(
-    df_team,
-    key_columns=["team_id"],
-    string_columns=["team_name"],
-    dedup_columns=["team_id"],
-    table_name="Team"
-)
+# df_player_match = clean_dataframe(
+#     df_player_match,
+#     key_columns=["player_match_sk"],
+#     string_columns=["player_name", "batting_hand", "bowling_skill", "country_name", "role_desc", "player_team", "opposit_team", "batting_status", "bowling_status", "player_captain", "opposit_captain", "player_keeper", "opposit_keeper"],
+#     date_columns=["dob"],
+#     dedup_columns=["player_match_sk"],
+#     table_name="Player_Match"
+# )
+
+# df_team = clean_dataframe(
+#     df_team,
+#     key_columns=["team_id"],
+#     string_columns=["team_name"],
+#     dedup_columns=["team_id"],
+#     table_name="Team"
+# )
 
 
-# ------------------------------------------------------------------------------------------------------------------------
-# DATA CLEANING COMPLETED
-# ------------------------------------------------------------------------------------------------------------------------
-# Initial Record Count
-initial_count = df_ball_by_ball.count()
-print(f" Initial Record Count: {initial_count}")
-print("----------------------------------------------------------------------------------------------------------------------")
+# # ------------------------------------------------------------------------------------------------------------------------
+# # DATA CLEANING COMPLETED
+# # ------------------------------------------------------------------------------------------------------------------------
+# # Initial Record Count
+# initial_count = df_ball_by_ball.count()
+# print(f" Initial Record Count: {initial_count}")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
-# Step 1: Drop completely null rows
-print("Step 1: Dropping rows where all columns are NULL...")
-df_ball_by_ball = df_ball_by_ball.dropna(how="all")
-after_null_drop = df_ball_by_ball.count()
-print(f" Rows after NULL drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
-print("----------------------------------------------------------------------------------------------------------------------")
+# # Step 1: Drop completely null rows
+# print("Step 1: Dropping rows where all columns are NULL...")
+# df_ball_by_ball = df_ball_by_ball.dropna(how="all")
+# after_null_drop = df_ball_by_ball.count()
+# print(f" Rows after NULL drop: {after_null_drop} | Removed: {initial_count - after_null_drop}")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
-# Step 2: Filter out rows with missing essential keys
-print("Step 2: Filtering out rows with missing Match_id, Over_id, or Ball_id...")
-df_ball_by_ball = df_ball_by_ball.filter(
-    col("Match_id").isNotNull() &
-    col("Over_id").isNotNull() &
-    col("Ball_id").isNotNull()
-)
-after_key_filter = df_ball_by_ball.count()
-print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
-print("----------------------------------------------------------------------------------------------------------------------")
+# # Step 2: Filter out rows with missing essential keys
+# print("Step 2: Filtering out rows with missing Match_id, Over_id, or Ball_id...")
+# df_ball_by_ball = df_ball_by_ball.filter(
+#     col("Match_id").isNotNull() &
+#     col("Over_id").isNotNull() &
+#     col("Ball_id").isNotNull()
+# )
+# after_key_filter = df_ball_by_ball.count()
+# print(f"Rows after key filters: {after_key_filter} | Removed: {after_null_drop - after_key_filter}")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
-# Step 3: Standardizing string columns
-print("Step 3: Standardizing string columns (Team_Batting, Team_Bowling, Extra_Type, Out_type)...")
-string_cols = ["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"]
+# # Step 3: Standardizing string columns
+# print("Step 3: Standardizing string columns (Team_Batting, Team_Bowling, Extra_Type, Out_type)...")
+# string_cols = ["Team_Batting", "Team_Bowling", "Extra_Type", "Out_type"]
 
-for col_name in string_cols:
-    df_ball_by_ball = df_ball_by_ball.withColumn(
-        col_name,
-        initcap(
-            regexp_replace(trim(lower(col(col_name))), " +", " ")
-        )
-    )
-after_string_clean = df_ball_by_ball.count()
-print(f" String formatting applied. Record count remains: {after_string_clean}")
-print("----------------------------------------------------------------------------------------------------------------------")
+# for col_name in string_cols:
+#     df_ball_by_ball = df_ball_by_ball.withColumn(
+#         col_name,
+#         initcap(
+#             regexp_replace(trim(lower(col(col_name))), " +", " ")
+#         )
+#     )
+# after_string_clean = df_ball_by_ball.count()
+# print(f" String formatting applied. Record count remains: {after_string_clean}")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
-# Step 4: Convert Match_Date to DateType
-print("Step 4: Converting Match_Date to DateType...")
-df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", to_date("Match_Date", "yyyy-MM-dd"))
-after_date_conversion = df_ball_by_ball.count()
-print(f"Date conversion done. Record count remains: {after_date_conversion}")
-print("----------------------------------------------------------------------------------------------------------------------")
+# # Step 4: Convert Match_Date to DateType
+# print("Step 4: Converting Match_Date to DateType...")
+# df_ball_by_ball = df_ball_by_ball.withColumn("Match_Date", to_date("Match_Date", "yyyy-MM-dd"))
+# after_date_conversion = df_ball_by_ball.count()
+# print(f"Date conversion done. Record count remains: {after_date_conversion}")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
-# Step 5: Drop duplicates based on key columns
-print("Step 5: Dropping duplicates based on Match_id, Over_id, Ball_id...")
-before_dedup = df_ball_by_ball.count()
-df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
-after_dedup = df_ball_by_ball.count()
-print(f" After dropping duplicates: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
-print("----------------------------------------------------------------------------------------------------------------------")
+# # Step 5: Drop duplicates based on key columns
+# print("Step 5: Dropping duplicates based on Match_id, Over_id, Ball_id...")
+# before_dedup = df_ball_by_ball.count()
+# df_ball_by_ball = df_ball_by_ball.dropDuplicates(["Match_id", "Over_id", "Ball_id"])
+# after_dedup = df_ball_by_ball.count()
+# print(f" After dropping duplicates: {after_dedup} | Duplicates removed: {before_dedup - after_dedup}")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
-# Final Summary
-print(" Cleaning Summary:")
-print(f" Initial Records           : {initial_count}")
-print(f" After NULL Row Drop       : {after_null_drop}")
-print(f" After Key Filter          : {after_key_filter}")
-print(f" After String Clean        : {after_string_clean}")
-print(f" After Date Conversion     : {after_date_conversion}")
-print(f" After dropping duplicates : {after_dedup}")
-print(f" Final Cleaned Record Count: {after_dedup}")
-print("Data Cleaning Complete!")
-print("----------------------------------------------------------------------------------------------------------------------")
+# # Final Summary
+# print(" Cleaning Summary:")
+# print(f" Initial Records           : {initial_count}")
+# print(f" After NULL Row Drop       : {after_null_drop}")
+# print(f" After Key Filter          : {after_key_filter}")
+# print(f" After String Clean        : {after_string_clean}")
+# print(f" After Date Conversion     : {after_date_conversion}")
+# print(f" After dropping duplicates : {after_dedup}")
+# print(f" Final Cleaned Record Count: {after_dedup}")
+# print("Data Cleaning Complete!")
+# print("----------------------------------------------------------------------------------------------------------------------")
 
 
 
