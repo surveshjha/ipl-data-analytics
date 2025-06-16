@@ -340,9 +340,13 @@ team_mapping = {
 
 # Step X: Map numeric codes in team columns to actual team names
 print("Mapping numeric team codes to full names in Team_Batting and Team_Bowling...")
-df_ball_by_ball = map_team_names(df_ball_by_ball, "team_batting", team_mapping)
-df_ball_by_ball = map_team_names(df_ball_by_ball, "team_bowling", team_mapping)
+for col_name in ["team_batting", "team_bowling"]:
+    df_ball_by_ball = df_ball_by_ball.withColumn(col_name,when(col(col_name).isin(team_mapping.keys()), team_mapping[col(col_name)])
+            .otherwise(col(col_name)))
+
 print("Team mapping applied.")
+print("See Results:")
+df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
 df_ball_by_ball = clean_dataframe(
