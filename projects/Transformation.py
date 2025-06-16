@@ -43,14 +43,16 @@ for table in table_names:
 #Answering questions:
 
 #filter to include only valid deliveries i.e. there should be no wides and no noballs
-dataframes["Ball_By_Ball"].select("match_id", "over_id", "ball_id", "wides", "noballs").show(5)
+# dataframes["Ball_By_Ball"].select("match_id", "over_id", "ball_id", "wides", "noballs").show(5)
+
 
 df_ball_by_ball=dataframes["Ball_By_Ball"]
-df_ball_by_ball=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
-total_and_avg_runs=df_ball_by_ball.groupBy("match_id","innings_no").agg(sum("runs_scored".alias("total_runs")),
-                                                                        avg("runs_scored").alias("Average_Runs")
-                                                                        )
-total_and_avg_runs.show()
+df_ball_by_ball.printSchema()
+# df_ball_by_ball=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
+# total_and_avg_runs=df_ball_by_ball.groupBy("match_id","innings_no").agg(sum("runs_scored".alias("total_runs")),
+#                                                                         avg("runs_scored").alias("Average_Runs")
+#                                                                         )
+# total_and_avg_runs.show()
 # dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
 #     (col('wides') == 0) & (col("noballs") == 0)
 # )
