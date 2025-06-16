@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col,avg,sum
 
 # Initialize Spark Session (if not already)
 print("[INFO] Initializing Spark session...")
@@ -52,9 +52,13 @@ print(f"Total Deliverries {df_ball_by_ball.count()}")
 df_ball_by_ball=df_ball_by_ball.filter((col("wides")==0)&(col("noballs")==0))
 print(f"Valid Deliverries {df_ball_by_ball.count()}")
 
-# total_and_avg_runs=df_ball_by_ball.groupBy("match_id","innings_no").agg(sum("runs_scored".alias("total_runs")),
-#                                                                         avg("runs_scored").alias("Average_Runs")
-#                                                                         )
+
+total_and_avg_runs = df_ball_by_ball.groupBy("match_id", "innings_no").agg(
+    sum("runs_scored").alias("total_runs"),
+    avg("runs_scored").alias("average_runs")
+)
+total_and_avg_runs.show()
+
 # total_and_avg_runs.show()
 # dataframes["Ball_By_Ball"] = dataframes["Ball_By_Ball"].filter(
 #     (col('wides') == 0) & (col("noballs") == 0)
