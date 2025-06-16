@@ -4,29 +4,29 @@ from pyspark.sql import functions as F
 from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col, when, lit, to_date
 
 # Define output directory
-output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
-output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
+# output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
+# output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
 
-# Step 1: Delete existing directory if it exists
-if os.path.exists(output_dir):
-    print(f"Deleting existing directory: {output_dir}")
-    shutil.rmtree(output_dir)
-else:
-    print(f"No existing directory found at: {output_dir}")
+# # Step 1: Delete existing directory if it exists
+# if os.path.exists(output_dir):
+#     print(f"Deleting existing directory: {output_dir}")
+#     shutil.rmtree(output_dir)
+# else:
+#     print(f"No existing directory found at: {output_dir}")
 
-print("Directory cleanup complete.")
-print("--------------------------------------------------------------------------------")
+# print("Directory cleanup complete.")
+# print("--------------------------------------------------------------------------------")
 
-# Step 2: Write the DataFrame as a single CSV file
-print(f"Writing cleaned data to: {output_dir}")
-df_ball_by_ball.coalesce(1) \
-    .write \
-    .option("header", "true") \
-    .mode("overwrite") \
-    .csv(output_uri)
+# # Step 2: Write the DataFrame as a single CSV file
+# print(f"Writing cleaned data to: {output_dir}")
+# df_ball_by_ball.coalesce(1) \
+#     .write \
+#     .option("header", "true") \
+#     .mode("overwrite") \
+#     .csv(output_uri)
 
-print("Write complete!")
-print("--------------------------------------------------------------------------------")
+# print("Write complete!")
+# print("--------------------------------------------------------------------------------")
 
 
 # ------------------------------------------------------------------------------------------------------------------------
