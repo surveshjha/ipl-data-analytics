@@ -383,7 +383,20 @@ team_mapping = {
     "13": "Gujarat Lions"
 }
 
-df_ball_by_ball.select("player_out,match_id").filter(col("player_out") == '').show(20)
+from pyspark.sql.functions import col, trim, isnan
+
+# Count NULL values
+null_count = df_ball_by_ball.filter(col("player_out").isNull()).count()
+print(f"NULL values in 'player_out': {null_count}")
+
+# Count Blank (empty string or spaces) values
+blank_count = df_ball_by_ball.filter(trim(col("player_out")) == "").count()
+print(f"Blank ('') values in 'player_out': {blank_count}")
+
+# Count Blank (empty string or spaces) values
+NULL_String_count = df_ball_by_ball.filter(trim(col("player_out")) == "NULL").count()
+print(f"NULL_String_count ('') values in 'player_out': {NULL_String_count}")
+
 
 # Step X: Map numeric codes in team columns to actual team names
 # print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
