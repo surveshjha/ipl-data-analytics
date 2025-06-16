@@ -135,8 +135,8 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     if date_columns:
         print(f"Step 4 - Formatting date columns: {date_columns}")
         for col_name in date_columns:
-            df = df.withColumn(col_name, to_date(col_name, "yyyy-MM-dd"))
-    after_date_conversion = df.count()
+            df = parse_date_column(df, col_name)
+    
     print(f"Date formatting done. Record count: {after_date_conversion}")
 
     # Step 5: Deduplication
@@ -172,6 +172,13 @@ def map_team_names(df, column, mapping_dict):
     expr = expr.otherwise(col(column))
     return df.withColumn(column, expr)
 
+def parse_date_column(df, column):
+    return df.withColumn(
+        column,
+        when(col(column).rlike(r"^\d{1,2}/\d{1,2}/\d{4}$"), to_date(col(column), "MM/dd/yyyy"))  # e.g., 4/22/2013
+        .when(col(column).rlike(r"^\d{2}-\d{2}-\d{4}$"), to_date(col(column), "MM/dd/yyyy"))     # e.g., 05-12-2013
+        .otherwise(None)
+    )
 
 
 # ------------------------------------------------------------------------------------------------------------------------
@@ -366,7 +373,7 @@ team_mapping = {
     "13": "Gujarat Lions"
 }
 
-from pyspark.sql.functions import col, trim, isnan
+# from pyspark.sql.functions import col, trim, isnan
 
 # # Count NULL values
 # null_count = df_ball_by_ball.filter(col("player_out").isNull()).count()
@@ -382,32 +389,39 @@ from pyspark.sql.functions import col, trim, isnan
 
 
 # Step X: Map numeric codes in team columns to actual team names
-print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
-for col_name in ["team_batting", "team_bowling"]:
-    df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
+# print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
+# for col_name in ["team_batting", "team_bowling"]:
+#     df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
-print("Team mapping applied.")
-print("See Results:")
-df_ball_by_ball.select("team_batting","team_bowling").show(10)
+# print("Team mapping applied.")
+# print("See Results:")
+# df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
+
+# df_cleaned  = clean_dataframe(
+#     df_ball_by_ball,
+#     key_columns=["match_id", "over_id", "ball_id"],
+#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+#     boolean_columns=[
+#         "caught", "bowled", "run_out", "lbw", "retired_hurt",
+#         "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+#     ],
+#     integer_columns=[
+#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+#     ],
+#     date_columns=["match_date"],
+#     dedup_columns=["match_id", "over_id", "ball_id"],
+#     table_name="Ball_By_Ball"
+# )
 
 df_cleaned  = clean_dataframe(
     df_ball_by_ball,
-    key_columns=["match_id", "over_id", "ball_id"],
-    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-    boolean_columns=[
-        "caught", "bowled", "run_out", "lbw", "retired_hurt",
-        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
-    ],
-    integer_columns=[
-        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-    ],
     date_columns=["match_date"],
-    dedup_columns=["match_id", "over_id", "ball_id"],
     table_name="Ball_By_Ball"
 )
+
 
 # # Define output directory
 # output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
