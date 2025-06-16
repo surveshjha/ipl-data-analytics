@@ -368,11 +368,13 @@ team_mapping = {
 #     table_name="Ball_By_Ball"
 # )
 
-df_ball_by_ball.write \
+df_ball_by_ball.coalesce(1) \
+    .write \
     .option("header", "true") \
     .mode("overwrite") \
-    .coalesce(1) \
-    .csv("E:/DataEngineering/Ipl-Analytics/cleaned-data")
+    .csv("file:///E:/DataEngineering/Ipl-Analytics/cleaned-data")
+
+
 
 
 # df_match = clean_dataframe(
