@@ -111,7 +111,7 @@ except Exception as e:
 # df_ball_by_ball.printSchema()
 
 print(f"Writing cleaned data to: output_dir")
-df_cleaned.coalesce(1) \
+df_ball_by_ball.coalesce(1) \
     .write \
     .option("header", "true") \
     .mode("overwrite") \
