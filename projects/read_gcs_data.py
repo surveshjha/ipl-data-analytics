@@ -383,33 +383,35 @@ team_mapping = {
     "13": "Gujarat Lions"
 }
 
+df_ball_by_ball.select("player_out,match_id").filter(col("player_out") == '').show(20)
+
 # Step X: Map numeric codes in team columns to actual team names
-print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
-for col_name in ["team_batting", "team_bowling"]:
-    df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
+# print(" Mapping numeric team codes to full names in 'team_batting' and 'team_bowling'...")
+# for col_name in ["team_batting", "team_bowling"]:
+#     df_ball_by_ball = map_team_names(df_ball_by_ball, col_name, team_mapping)
 
-print("Team mapping applied.")
-print("See Results:")
-df_ball_by_ball.select("team_batting","team_bowling").show(10)
+# print("Team mapping applied.")
+# print("See Results:")
+# df_ball_by_ball.select("team_batting","team_bowling").show(10)
 
 
-df_ball_by_ball = clean_dataframe(
-    df_ball_by_ball,
-    key_columns=["match_id", "over_id", "ball_id"],
-    string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
-    boolean_columns=[
-        "caught", "bowled", "run_out", "lbw", "retired_hurt",
-        "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
-    ],
-    integer_columns=[
-        'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
-        'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
-        'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
-    ],
-    date_columns=["match_date"],
-    dedup_columns=["match_id", "over_id", "ball_id"],
-    table_name="Ball_By_Ball"
-)
+# df_ball_by_ball = clean_dataframe(
+#     df_ball_by_ball,
+#     key_columns=["match_id", "over_id", "ball_id"],
+#     string_columns=["team_batting", "team_bowling", "extra_type", "out_type"],
+#     boolean_columns=[
+#         "caught", "bowled", "run_out", "lbw", "retired_hurt",
+#         "stumped", "caught_and_bowled", "hit_wicket", "obstructingfeild", "bowler_wicket"
+#     ],
+#     integer_columns=[
+#         'striker_batting_position', 'runs_scored', 'extra_runs', 'wides',
+#         'legbyes', 'byes', 'noballs', 'penalty', 'bowler_extras',
+#         'striker', 'non_striker', 'bowler', 'player_out', 'fielders'
+#     ],
+#     date_columns=["match_date"],
+#     dedup_columns=["match_id", "over_id", "ball_id"],
+#     table_name="Ball_By_Ball"
+# )
 
 # # Define output directory
 # output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
@@ -426,15 +428,15 @@ df_ball_by_ball = clean_dataframe(
 # print("--------------------------------------------------------------------------------")
 
 # Step 2: Write the DataFrame as a single CSV file
-print(f"Writing cleaned data to: {output_dir}")
-df_ball_by_ball.coalesce(1) \
-    .write \
-    .option("header", "true") \
-    .mode("overwrite") \
-    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data')
+# print(f"Writing cleaned data to: output_dir")
+# df_ball_by_ball.coalesce(1) \
+#     .write \
+#     .option("header", "true") \
+#     .mode("overwrite") \
+#     .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data')
 
-print("Write complete!")
-print("--------------------------------------------------------------------------------")
+# print("Write complete!")
+# print("--------------------------------------------------------------------------------")
 
 
 
