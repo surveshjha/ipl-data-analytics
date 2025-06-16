@@ -70,7 +70,7 @@ def clean_dataframe(df, key_columns=None,string_columns=None, boolean_columns=No
     for col_name in boolean_columns:
         if col_name in df.columns:
             count_nulls = df.filter(col(col_name).isNull() | (trim(col(col_name)) == "")).count()
-            print(f"🟡Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
+            print(f"Boolean Column '{col_name}': {count_nulls} blanks/nulls replaced with False (0)")
 
 
 
