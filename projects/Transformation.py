@@ -106,3 +106,8 @@ df_orangecap_named = df_orangecap.join(
 
 # Display top 10 orange cap players
 df_orangecap_named.orderBy(col("total_runs").desc()).show(10)
+
+
+#When was the ipl first match played and where
+df_Match=dataframes["Match"]
+df_valid_deliveries.join(df_Match,df_valid_deliveries["match_id"]==df_Match["match_id"],how="left").select("match_date","venue_name").show(10)
