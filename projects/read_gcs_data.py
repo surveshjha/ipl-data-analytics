@@ -2,8 +2,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import (StructField, StructType, IntegerType, StringType, BooleanType, DateType, DecimalType)
 from pyspark.sql import functions as F
 from pyspark.sql.functions import trim, lower, initcap, regexp_replace, col, when, lit, to_date
-import os
-import shutil
 
 # Define output directory
 output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
@@ -413,9 +411,9 @@ df_ball_by_ball = clean_dataframe(
     table_name="Ball_By_Ball"
 )
 
-# Define output directory
-output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
-output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
+# # Define output directory
+# output_dir = "E:/DataEngineering/Ipl-Analytics/cleaned-data"
+# output_uri = "file:///E:/DataEngineering/Ipl-Analytics/cleaned-data"
 
 # # Step 1: Delete existing directory if it exists
 # if os.path.exists(output_dir):
@@ -433,7 +431,7 @@ df_ball_by_ball.coalesce(1) \
     .write \
     .option("header", "true") \
     .mode("overwrite") \
-    .csv(output_uri)
+    .csv('E:/DataEngineering/Ipl-Analytics/cleaned-data')
 
 print("Write complete!")
 print("--------------------------------------------------------------------------------")
