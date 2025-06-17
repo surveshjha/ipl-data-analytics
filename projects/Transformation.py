@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, avg, sum, when
+from pyspark.sql.functions import col, avg, sum, when,regexp_replace,lower
 from pyspark.sql.window import Window
 
 # -----------------------------------------------------------
@@ -171,8 +171,6 @@ df_Match.show(10)
 # -----------------------------------------------------------
 # Cleaning Player Dataframe
 # -----------------------------------------------------------
-
-from pyspark.sql.functions import regexp_replace,lower
 
 df_Player=dataframes['Player']
 
