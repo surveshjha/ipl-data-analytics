@@ -123,4 +123,4 @@ df_high_impact_ball.select(
     "striker",
     (col("extra_runs") + col("runs_scored")).alias("total_runs_on_high_impact_ball"),
     "high_impact"
-).orderBy(col("total_runs_on_high_impact_ball").desc()).show(10)
+).orderBy(col("total_runs_on_high_impact_ball"),ascending=False).show(10)
