@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, avg, sum, when,regexp_replace,lower
+from pyspark.sql.functions import col, avg, sum, when,regexp_replace,lower,current_date
 from pyspark.sql.window import Window
 
 # -----------------------------------------------------------
@@ -184,5 +184,16 @@ df_Player=df_Player.withColumn("player_name",lower(regexp_replace("player_name",
 
 df_Player.show(10)          
 
+#Adding batting hand column
 df_Player=df_Player.withColumn("batting_style",when( col("batting_hand").contains("left"),"Left-Handed" ).otherwise('Right-Handed') )
 df_Player.show(10)
+
+# -----------------------------------------------------------
+#  Player Match Dataframe
+# -----------------------------------------------------------
+
+df_Player_Match=dataframes['Player_Match']
+#Dynamic column to calculate years since debut
+df_Player_Match=df_Player_Match.withColumn("years_Since_debut",year( (current_date()) - col("season_year") ))
+
+df_Player_Match.show(10)
