@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, avg, sum
+from pyspark.sql.functions import col, avg, sum, when
 from pyspark.sql.window import Window
 
 # --------------------------------------------
@@ -113,5 +113,14 @@ df_Match=dataframes["Match"]
 df_valid_deliveries.alias("vdl") \
     .join(dataframes["Match"].alias("mt"), col("vdl.match_id") == col("mt.match_id"), how="left") \
     .select("mt.match_date", "mt.venue_name") \
-    .orderBy("mt.match_date") \
-    .show(10)
+    .orderBy("mt.match_date").desc() \
+    .show(1)
+
+#Conditional Column: Flag for high impact ball (either a wicket or more than 6 runs including extras)
+df_high_impact_ball=df_valid_deliveries.withColumn("high_impact",when(( col("extra_runs")+col("runs_scored") > 6) | (col("bowler_wicket")=='0') ), True).Otherwise(False)
+df_high_impact_ball.select(
+    "match_id",
+    "striker",
+    (col("extra_runs") + col("runs_scored")).alias("total_runs_on_high_impact_ball"),
+    "high_impact"
+).orderBy(col("total_runs_on_high_impact_ball").desc()).show(10)
