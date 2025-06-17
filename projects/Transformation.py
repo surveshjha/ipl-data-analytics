@@ -117,7 +117,15 @@ df_valid_deliveries.alias("vdl") \
     .show(1)
 
 #Conditional Column: Flag for high impact ball (either a wicket or more than 6 runs including extras)
-df_high_impact_ball=df_valid_deliveries.withColumn("high_impact",when(( col("extra_runs")+col("runs_scored") > 6) | (col("bowler_wicket")=='0') ), True).Otherwise(False)
+
+df_high_impact_ball = df_valid_deliveries.withColumn(
+    "high_impact",
+    when(
+        ((col("extra_runs") + col("runs_scored")) > 6) | (col("bowler_wicket") == '0'),
+        True
+    ).otherwise(False)
+)
+
 df_high_impact_ball.select(
     "match_id",
     "striker",
