@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, avg, sum, when
+from pyspark.sql.functions import col, avg, sum, when,regexp_replace,lower,current_date
 from pyspark.sql.window import Window
 
 # -----------------------------------------------------------
@@ -143,3 +143,57 @@ df_high_impact_ball.select(
     (col("extra_runs") + col("runs_scored")).alias("total_runs_on_high_impact_ball"),
     "high_impact"
 ).orderBy(col("total_runs_on_high_impact_ball").desc()).show(10)
+
+# -----------------------------------------------------------
+# Enriching Match Dataframe with date time columns
+# -----------------------------------------------------------
+
+from pyspark.sql.functions import year,month,dayofmonth,when
+
+#Extracting year,month,dayofmonth from the match date for detailed time based analysis
+
+df_Match=dataframes['Match']
+df_Match=df_Match.withColumn("year",year("match_date_cleaned"))
+df_Match=df_Match.withColumn("month",month("match_date_cleaned"))
+df_Match=df_Match.withColumn("day",dayofmonth("match_date_cleaned"))
+
+# Win margin clolumn, High, Medium, Low 
+
+
+df_Match = df_Match.withColumn(
+    "win_margin_category",
+    when(col("win_margin") >= 100, "High")
+    .when((col("win_margin") >= 50) & (col("win_margin") < 100), "Medium")
+    .otherwise("Low")
+)
+df_Match.show(10)
+
+# -----------------------------------------------------------
+# Cleaning Player Dataframe
+# -----------------------------------------------------------
+
+df_Player=dataframes['Player']
+
+#Normalize and clean player names
+print("------------------------------------------------------------")
+print("[INFO] Normalizing and cleaning Player data")
+
+df_Player=df_Player.withColumn("player_name",lower(regexp_replace("player_name","[^a-zA-Z0-9]",""))) \
+                    .withColumn("batting_hand",lower(regexp_replace("batting_hand","[^a-zA-Z0-9]",""))) \
+                    .withColumn("bowling_skill",lower(regexp_replace("bowling_skill","[^a-zA-Z0-9]","")))
+
+df_Player.show(10)          
+
+#Adding batting hand column
+df_Player=df_Player.withColumn("batting_style",when( col("batting_hand").contains("left"),"Left-Handed" ).otherwise('Right-Handed') )
+df_Player.show(10)
+
+# -----------------------------------------------------------
+#  Player Match Dataframe
+# -----------------------------------------------------------
+
+df_Player_Match=dataframes['Player_Match']
+#Dynamic column to calculate years since debut
+df_Player_Match=df_Player_Match.withColumn("years_Since_debut",year( (current_date()) - col("season_year") ))
+
+df_Player_Match.show(10)
