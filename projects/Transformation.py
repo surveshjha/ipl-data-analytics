@@ -154,8 +154,13 @@ from pyspark.sql.functions import year,month,dayofmonth,when
 
 df_Match=dataframes['Match']
 df_Match=df_Match.withColumn("year",year("match_date_cleaned"))
-df_Match=df_Match.withColumn("month",year("match_date_cleaned"))
-df_Match=df_Match.withColumn("day",year("match_date_cleaned"))
+df_Match=df_Match.withColumn("month",month("match_date_cleaned"))
+df_Match=df_Match.withColumn("day",dayofmonth("match_date_cleaned"))
 
-df_Match=df_Match.withColumn("win_margin_category",when(col("win_margin")>=100,"High").when(col("win_margin")>=50 & col("win_margin")<100,"Medium").otherwise("Low"))
+df_Match = df_Match.withColumn(
+    "win_margin_category",
+    when(col("win_margin") >= 100, "High")
+    .when((col("win_margin") >= 50) & (col("win_margin") < 100), "Medium")
+    .otherwise("Low")
+)
 df_Match.show(10)
