@@ -175,9 +175,14 @@ df_Match.show(10)
 df_Player=dataframes['Player']
 
 #Normalize and clean player names
-df_Player.show(10)
+print("------------------------------------------------------------")
+print("[INFO] Normalizing and cleaning Player data")
+
 df_Player=df_Player.withColumn("player_name",lower(regexp_replace("player_name","[^a-zA-Z0-9]",""))) \
                     .withColumn("batting_hand",lower(regexp_replace("batting_hand","[^a-zA-Z0-9]",""))) \
-                    .withColumn("bowling_skill",lower(regexp_replace("bowling_skill","[^a-zA-Z0-9]",""))) \
-                    
-df_Player.show(20)
+                    .withColumn("bowling_skill",lower(regexp_replace("bowling_skill","[^a-zA-Z0-9]","")))
+
+df_Player.show(10)          
+
+df_Player=df_Player.withColumn("batting_style",when( col("batting_hand").contains("left"),"Left-Handed" ).otherwise('Right-Handed') )
+df_Player.show(10)
