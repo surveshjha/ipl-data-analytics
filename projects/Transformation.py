@@ -172,7 +172,7 @@ df_Match.show(10)
 # Cleaning Player Dataframe
 # -----------------------------------------------------------
 
-from pyspark.sql.function import regexp_replace,lower
+from pyspark.sql.functions import regexp_replace,lower
 
 df_Player=dataframes['Player']
 
