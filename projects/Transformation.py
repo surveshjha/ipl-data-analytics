@@ -145,7 +145,7 @@ df_high_impact_ball.select(
 ).orderBy(col("total_runs_on_high_impact_ball").desc()).show(10)
 
 # -----------------------------------------------------------
-# Enriching Match Dataframe
+# Enriching Match Dataframe with date time columns
 # -----------------------------------------------------------
 
 from pyspark.sql.functions import year,month,dayofmonth,when
@@ -157,6 +157,9 @@ df_Match=df_Match.withColumn("year",year("match_date_cleaned"))
 df_Match=df_Match.withColumn("month",month("match_date_cleaned"))
 df_Match=df_Match.withColumn("day",dayofmonth("match_date_cleaned"))
 
+# Win margin clolumn, High, Medium, Low 
+
+
 df_Match = df_Match.withColumn(
     "win_margin_category",
     when(col("win_margin") >= 100, "High")
@@ -164,3 +167,19 @@ df_Match = df_Match.withColumn(
     .otherwise("Low")
 )
 df_Match.show(10)
+
+# -----------------------------------------------------------
+# Cleaning Player Dataframe
+# -----------------------------------------------------------
+
+from pyspark.sql.function import regexp_replace,lower
+
+df_Player=dataframes['Player']
+
+#Normalize and clean player names
+df_Player.show(10)
+df_Player=df_Player.withColumn("player_name",lower(regexp_replace("player_name","[^a-zA-Z0-9]",""))) \
+                    .withColumn("batting_hand",lower(regexp_replace("batting_hand","[^a-zA-Z0-9]",""))) \
+                    .withColumn("bowling_skill",lower(regexp_replace("bowling_skill","[^a-zA-Z0-9]",""))) \
+                    
+df_Player.show(20)
