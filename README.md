@@ -13,7 +13,7 @@ This project performs data extraction, transformation, and analytics on IPL (Ind
 - **Load**: Cleaned datasets are stored in GCS and FileStore.
 - **BI/Analytics**: Data is visualized using Jupyter and Looker.
 
-> ![Architecture](./IPL-DATA-ARCHITECHTURE.jpeg)
+> ![Architecture](./IPL-DATA-ARCHITECHTURE .jpeg)
 
 ---
 
